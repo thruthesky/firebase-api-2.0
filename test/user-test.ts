@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as firebase from 'firebase';
+//import * as firebase from 'firebase';
 import { User } from '../user';
 export const TEST_NEW_NAME = "This-is-new-name!";
 export const TEST_PASSWORD = 'Wc~,123a*';
