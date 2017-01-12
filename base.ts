@@ -1,6 +1,6 @@
 
 import * as firebase from 'firebase';
-import * as _ from 'lodash';
+// import * as _ from 'lodash';
 
 export class Base {
     db: firebase.database.Database;
