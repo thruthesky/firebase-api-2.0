@@ -11,6 +11,21 @@ export class User extends Base {
         this.auth = firebase.auth();
     }
 
+    /**
+     * Check if the user has logged in or not.
+     * @note this is blocking code.
+     */
+    get isLogin() : boolean {
+        return !! this.auth.currentUser;
+    }
+
+    /**
+     * Get auth.currentUser
+     * @note this is blcoknig code.
+     */
+    get currentUser() : firebase.User {
+        return this.auth.currentUser;
+    }
 
     /**
      * 
@@ -20,9 +35,11 @@ export class User extends Base {
      *      data['password']
      * 
      * @note on success callback, 'firebase.User.uid' will be passed as parameter.
+     * @attention once user account has created, the user has logged in automatically.
+     * @see UserTest::create_login_test()
      */
     create( success?: ( uid: string ) => void, failure?: (error?: any) => void, complete?: () => void ) {
-        console.log("user::create()");
+        //console.log("user::create()");
         let data = this.getData();
         this.register( data['email'], data['password'], user => {
             //console.log('user::register() : ', user);
@@ -31,7 +48,7 @@ export class User extends Base {
             data['uid'] = uid;
             delete data['password'];
             super.create( () => {
-                console.log("user::create() success. uid: ", uid);
+                //console.log("user::create() success. uid: ", uid);
                 success( uid );
             }, failure, complete );
         }, error => this.failure( error, failure, complete ) );

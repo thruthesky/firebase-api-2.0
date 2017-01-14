@@ -51,7 +51,7 @@ export class Base {
      */
     create( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
-        console.log("base::create() : ", JSON.stringify( data ));
+        //console.log("base::create() : ", JSON.stringify( data ));
         let key = data['key'];
         if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
         let ref;
@@ -63,7 +63,7 @@ export class Base {
 
         ref.set( data )
             .then( ( re ) => {
-                console.log("base::create() success");
+                //console.log("base::create() success");
                 this.success( re, success, complete );
             })
             .catch( e => this.failure( e, failure, complete ));
