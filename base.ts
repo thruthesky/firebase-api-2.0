@@ -96,7 +96,7 @@ export class Base {
 
 
 
-    get(key, success: (user: any) => void, failure?: (error?: any) => void, complete?) {
+    get(key, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
         console.log("base::get() key: ", key);
         this.getRef( key ).once( 'value', snapshot => {
             if ( snapshot.exists() ) {

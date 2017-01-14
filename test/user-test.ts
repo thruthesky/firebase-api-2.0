@@ -10,7 +10,7 @@ export class UserTest {
     }
 
     run() {
-        //this.singleUserTest_CRUD_logInOut();
+        this.singleUserTest_CRUD_logInOut();
         this.create_login_test();
     }
 
@@ -101,19 +101,19 @@ export class UserTest {
     create_login_test() {
         console.log( '=== create_login_test() begin ===');
         this.logout( () => {
-            if ( this.user.isLogin ) return console.error("Failed: logout");
+            if ( this.user.loginUser ) return console.error("Failed: logout");
             let id = this.getUserId('user-O-')
             this.createUser( id, ( uid: string ) => {
                 //console.info("createUser() uid: ", uid);
-                if ( this.user.isLogin ) console.info("Success: the user has logged in already");
+                if ( this.user.loginUser ) console.info("Success: the user has logged in already");
                 else return console.error("Failed: User has not logged in after create an account");
 
                 this.logout(() => {
-                    if ( ! this.user.isLogin ) console.info("Success: the user has logged out successfully.");
+                    if ( ! this.user.loginUser ) console.info("Success: the user has logged out successfully.");
                     else return console.error("Failed: logout failed.");
 
                     this.login( id, uid => {
-                        if ( this.user.isLogin ) console.info("Success: the user has logged in");
+                        if ( this.user.loginUser ) console.info("Success: the user has logged in: ", this.user.loginUser);
                         else return console.error("Failed: login failed");
                     });
 
@@ -121,5 +121,4 @@ export class UserTest {
             });
         });
     }
-
 }
