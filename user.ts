@@ -22,22 +22,32 @@ export class User extends Base {
      * @var loginUser
      * 
      * @note get login user's data.
+     * @note use this variable any time, any where. if this variable is true, then the user has logged in.
      * @note this is a variable changed on
      *      - constructor
      *      - the state of auth change.
      *
-     * @attention this loads login user's data in the constructor which means when this provider injected into a component, there will not be second contructor call and nor user's data load.
+     * @attention This loads login user's data in the constructor which means
+     *      when this provider injected into a component,
+     *      there will not be second contructor call and nor user's data load.
+     *      So, it is one time run and use everywhere.
      * 
      * 
      * 
      */
     loginUser: USER_LOGIN_DATA = null;
+
     constructor() {
         super();
         this.node( 'user' );
         this.auth = firebase.auth();
         this.loginUser = this.getLoginUserData();
         this.auth.onAuthStateChanged( ( user ) => this.onAuthStateChanged( user ) );
+    }
+
+
+    get loggedIn() : boolean {
+        return !! ( this.loginUser && this.loginUser.uid );
     }
 
     private getLoginUserData() : USER_LOGIN_DATA {
@@ -76,19 +86,19 @@ export class User extends Base {
             return;
         }
         localStorage.setItem( KEY_LOGIN_USER, loginUser);
-        this.loginUser = loginUser;
+        this.loginUser = data;
 
         // 2. get user name from firebase database over network.
         this.get( uid, user => {
             if ( user ) {
-                console.log("user: ", user);
+                // console.log("user: ", user);
                 data = {
                     uid: uid,
                     name: user['name']
                 };
                 loginUser = JSON.stringify( data );
                 localStorage.setItem( KEY_LOGIN_USER, loginUser);
-                this.loginUser = loginUser;
+                this.loginUser = data;
             }
         }, e => {
             return alert("CRITICAL ERROR: failed to get user data");
@@ -114,12 +124,12 @@ export class User extends Base {
      * 
      */
     onAuthStateChanged( user: firebase.User ) {
-        console.info("onAuthStateChanged: loginUser: ", this.loginUser );
+        // console.info("onAuthStateChanged: loginUser: ", this.loginUser );
         if ( user ) {
-            console.info("login: ", user.email);
+            // console.info("login: ", user.email);
         }
         else {
-            console.log("logout");
+            // console.log("logout");
         }
     }
     
@@ -143,18 +153,44 @@ export class User extends Base {
     create( success?: ( uid: string ) => void, failure?: (error?: any) => void, complete?: () => void ) {
         //console.log("user::create()");
         let data = this.getData();
-        this.register( data['email'], data['password'], user => {
+        this.register( data['email'], data['password'], user => { // user register into firebase authentication.
             //console.log('user::register() : ', user);
             let uid = user.uid;
+            let id = data['id'];
+            let email = data['email'];
             data['key'] = uid;
             data['uid'] = uid;
             delete data['password'];
-            super.create( () => { // user has logged in now.
+            //console.log('data:', data);
+            super.create( () => { // user create success. user has logged in now.
                 //console.log("user::create() success. uid: ", uid);
 
-                this.setLoginUserData( uid );
 
-                success( uid );
+                /**
+                 * It creates 'User ID => UID' index for access uid by user id.
+                 * @see README.md
+                 */
+                super.clear();
+                let data = this.getData();
+                data['key'] = id;
+                data['uid'] = uid;
+                //console.log("data: ", data);
+                super.create( (x) => {
+                    //console.info('user id index success');
+
+                    /**
+                     * 'email => uid'
+                     */
+                    super.clear();
+                    let data = this.getData();
+                    data['key'] = email.replace('@', '+');
+                    data['key'] = data['key'].replace('.', '+');
+                    data['uid'] = uid;
+                    super.create( x => {
+                        this.setLoginUserData( uid );
+                        success( uid );
+                    }, failure, complete );
+                }, failure, complete );
             }, failure, complete );
         }, error => this.failure( error, failure, complete ) );
     }
@@ -192,7 +228,7 @@ export class User extends Base {
      * 
      * @use to log out.
      */
-    logout( success?, failure?, complete? ) {
+    logout( success?, failure?, complete?: () => void ) {
         this.auth.signOut()
             .then( () => {
                     this.deleteLoginUserData();

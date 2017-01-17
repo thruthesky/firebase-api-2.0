@@ -3,10 +3,11 @@ export interface USER_LOGIN_DATA {
     name: string;
 }
 export interface USER_REGISTRATION_FORM {
+    id          : string;
     email       : string;
     password    : string;
     name        : string;
     mobile      : string;
     gender      : string;
-    birthdate   : Date;
+    birthdate   : string;
 }

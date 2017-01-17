@@ -20,6 +20,9 @@ export class Base {
         this.__data[ k ] = v;
         return this;
     }
+    /**
+     * @attention Remember! it's a place holder. changes after this call will be applied into this.__data.
+     */
     getData() {
         return this.__data;
     }
@@ -96,15 +99,23 @@ export class Base {
 
 
 
+    /**
+     * 
+     * @attention 2017-01-17 If the key does not exists,
+     *      - instead of passing 'null' with success,
+     *      - failure callback will be called.
+     */
     get(key, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
-        console.log("base::get() key: ", key);
+        // console.log("base::get() key: ", key);
         this.getRef( key ).once( 'value', snapshot => {
             if ( snapshot.exists() ) {
-                console.log("base::get() snapshot : ", snapshot.val() );
-                this.success( snapshot.val(), success, complete );
+                // console.log("base::get() snapshot : ", snapshot.val() );
+                let val = snapshot.val();
+                if ( val ) this.success( val, success, complete );
+                else this.failure( 'no-data', failure, complete )
             }
-            else this.success( null, success, complete );
-        }, () => this.failure( null, failure, complete ) );
+            else this.failure( null, failure, complete );
+        }, () => this.failure( 'unknown-get-error', failure, complete ) );
     }
 
 
