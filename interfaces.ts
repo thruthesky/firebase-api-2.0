@@ -3,6 +3,7 @@ export interface USER_LOGIN_DATA {
     name: string;
 }
 export interface USER_REGISTRATION_FORM {
+    uid?        : string;
     id          : string;
     email       : string;
     password    : string;

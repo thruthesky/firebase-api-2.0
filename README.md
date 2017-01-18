@@ -2,30 +2,7 @@
 New Firebase api v2
 
 # TODO
-
-
-check if id exists on registration.
-    => user.get('id', s => '', f => '', ...)
-check if id is valid type. ( cannot contain '.', '$', '#', '[', ']' )
-
-
-User password update.
-
-Save id
-
-Find ID.
-
---
-
-Admin page for user management.
-
-list user / update user / delete user
-
-
-* forum
-forum config management,
-post crud
-post list
+@see readme.md of english
 
 
 # TEST
