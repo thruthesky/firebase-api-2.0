@@ -184,7 +184,7 @@ export class User extends Base {
                     super.clear();
                     let data = this.getData();
                     data['key'] = email.replace('@', '+');
-                    data['key'] = data['key'].replace('.', '+');
+                    data['key'] = data['key'].replace('.', '-');
                     data['uid'] = uid;
                     super.create( x => {
                         this.setLoginUserData( uid );
@@ -195,6 +195,19 @@ export class User extends Base {
         }, error => this.failure( error, failure, complete ) );
     }
 
+
+
+    /**
+     * 
+     * reset Password.
+     * @description: user needs to provide a valid and registered email address, firebase authentication API.
+     * 
+     */
+    resetpassword( email: string, success, failure, complete){
+        this.auth.sendPasswordResetEmail(email).then(()=>{
+            this.success('password reset sent to your email', success, complete );
+        }, error =>{ this.failure( 'error ' + error, failure, complete )})
+    }
 
     register( email, password, success: ( user: firebase.User ) => void, failure: (error: string) => void  ) {
         this.auth.createUserWithEmailAndPassword( email, password )
