@@ -1,8 +1,10 @@
 
 import * as firebase from 'firebase';
-// import * as _ from 'lodash';
+import * as _ from 'lodash';
 
 export class Base {
+    private pagination_key: string = '';
+    private pagination_last_page: boolean = false;
     db: firebase.database.Database;
     storage: firebase.storage.Storage;
     __node: string = null;
@@ -96,6 +98,41 @@ export class Base {
             .catch( e => this.failure( e.message, failure, complete ) );
         }, e => this.failure('sync failed: ' + e, failure, complete) );
     }
+
+
+    /**
+     * @description: page method is for getting list with pagination.
+     */
+  page( databaseRef, success, failure, complete? ) {
+    let num = ( this.data['numberOfPosts'] ? this.data['numberOfPosts'] : 5 ) + 1;
+    let ref = firebase.database().ref( databaseRef )
+    let order = ref.orderByKey();
+    let query;
+    let newData;
+    if ( this.pagination_key ) {
+      query = order.endAt( this.pagination_key ).limitToLast( num );
+    }
+    else {
+      query = order.limitToLast(num);
+    }
+
+    query
+      .once('value', snapshot => {
+          let data = snapshot.val();
+          let keys = Object.keys( data );
+          
+          if ( keys.length < this.data['numberOfPosts'] + 1 ) {
+            newData = data;
+            this.pagination_last_page = true;
+            
+          }
+          else {
+            this.pagination_key = Object.keys( data ).shift();
+            newData = _.omit( data, this.pagination_key );
+          }
+          this.success( newData, success, complete );
+        }, error => this.failure( error, failure, complete ));
+  }
 
 
 
