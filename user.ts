@@ -206,7 +206,11 @@ export class User extends Base {
     resetpassword( email: string, success, failure, complete){
         this.auth.sendPasswordResetEmail(email).then(()=>{
             this.success('password reset sent to your email', success, complete );
-        }, error =>{ this.failure( 'error ' + error, failure, complete )})
+        }, error =>{ 
+            var errorCode = error['code'];
+            var errorMessage = error.message;
+            this.failure( errorCode + ' : ' + errorMessage )
+        })
     }
 
     register( email, password, success: ( user: firebase.User ) => void, failure: (error: string) => void  ) {
