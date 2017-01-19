@@ -185,6 +185,7 @@ export class User extends Base {
                     let data = this.getData();
                     data['key'] = email.replace('@', '+');
                     data['key'] = data['key'].replace('.', '-');
+                    data['id'] = id;
                     data['uid'] = uid;
                     super.create( x => {
                         this.setLoginUserData( uid );
@@ -269,6 +270,16 @@ export class User extends Base {
                 var errorMessage = error.message;
                 this.failure( errorCode + ' : ' + errorMessage, failure, complete );
             });
+    }
+
+
+    deketeuser(uid){
+        admin.auth().deleteUser(uid)
+            .then( () =>{
+                console.log('successfully deleted');
+            }).catch( error =>{
+                console.log('error ' + error);
+            })
     }
 
     /**

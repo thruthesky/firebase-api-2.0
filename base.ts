@@ -1,6 +1,8 @@
 
 import * as firebase from 'firebase';
+import * as admin from "firebase-admin";
 import * as _ from 'lodash';
+
 
 export class Base {
     private pagination_key: string = '';
@@ -75,6 +77,8 @@ export class Base {
     }
 
 
+
+
     /**
      * Updates a node.
      * It does not create a node.
@@ -104,7 +108,7 @@ export class Base {
      * @description: page method is for getting list with pagination.
      */
   page( databaseRef, success, failure, complete? ) {
-    let num = ( this.data['numberOfPosts'] ? this.data['numberOfPosts'] : 5 ) + 1;
+    let num = ( this.data['numberOfPosts'] ? this.data['numberOfPosts'] : 8 ) + 1;
     let ref = firebase.database().ref( databaseRef )
     let order = ref.orderByKey();
     let query;
