@@ -1,6 +1,6 @@
 
 import * as firebase from 'firebase';
-import * as admin from "firebase-admin";
+// import * as admin from "firebase-admin";
 import * as _ from 'lodash';
 
 
