@@ -89,7 +89,7 @@ export class User extends Base {
         this.loginUser = data;
 
         // 2. get user name from firebase database over network.
-        this.get( uid, user => {
+        this.get( 'metadata/'+uid, user => {
             if ( user ) {
                 // console.log("user: ", user);
                 data = {
@@ -153,8 +153,9 @@ export class User extends Base {
     create( success?: ( uid: string ) => void, failure?: (error?: any) => void, complete?: () => void ) {
         //console.log("user::create()");
         let data = this.getData();
+        
         this.register( data['email'], data['password'], user => { // user register into firebase authentication.
-            //console.log('user::register() : ', user);
+            // console.log('user::register() : ', user);
             let uid = user.uid;
             let id = data['id'];
             let email = data['email'];
@@ -162,7 +163,7 @@ export class User extends Base {
             data['uid'] = uid;
             delete data['password'];
             //console.log('data:', data);
-            super.create( () => { // user create success. user has logged in now.
+            super.create('metadata', () => { // user create success. user has logged in now.
                 //console.log("user::create() success. uid: ", uid);
 
 
@@ -175,7 +176,7 @@ export class User extends Base {
                 data['key'] = id;
                 data['uid'] = uid;
                 //console.log("data: ", data);
-                super.create( (x) => {
+                super.create('id', (x) => {
                     //console.info('user id index success');
 
                     /**
@@ -187,7 +188,7 @@ export class User extends Base {
                     data['key'] = data['key'].replace('.', '-');
                     data['id'] = id;
                     data['uid'] = uid;
-                    super.create( x => {
+                    super.create('email', x => {
                         this.setLoginUserData( uid );
                         success( uid );
                     }, failure, complete );
@@ -274,12 +275,12 @@ export class User extends Base {
 
 
     deketeuser(uid){
-        admin.auth().deleteUser(uid)
-            .then( () =>{
-                console.log('successfully deleted');
-            }).catch( error =>{
-                console.log('error ' + error);
-            })
+        // admin.auth().deleteUser(uid)
+        //     .then( () =>{
+        //         console.log('successfully deleted');
+        //     }).catch( error =>{
+        //         console.log('error ' + error);
+        //     })
     }
 
     /**

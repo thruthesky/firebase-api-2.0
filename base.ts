@@ -56,7 +56,7 @@ export class Base {
      * @note mandatory data
      *      - data('key', '....')
      */
-    create( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+    create(childref?, success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
         //console.log("base::create() : ", JSON.stringify( data ));
         let key = data['key'];
@@ -66,9 +66,13 @@ export class Base {
             // this.failure( 'no key', failure, complete );
             ref = this.getPushRef();
         }
-        else ref = this.getRef( key );
+        else ref = this.getRef( childref );
 
-        ref.set( data )
+        
+
+        ref
+        .child(key)
+        .set( data )
             .then( ( re ) => {
                 //console.log("base::create() success");
                 this.success( re, success, complete );
@@ -91,10 +95,10 @@ export class Base {
         if ( key === void 0 ) return this.failure('key is empty.', failure, complete );
         if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
             
-        this.get( key, re => {   // yes, key exists on server, so you can update.
+        this.get( 'metadata/'+key, re => {   // yes, key exists on server, so you can update.
         if ( re == null ) return this.failure('the key does not exists. so it cannot update.', failure, complete );
         console.log("Going to update: data : ", data);
-        this.getRef( key )
+        this.getRef('metadata/'+ key)
             .update( data, re => {
             if ( re == null ) this.success( null, success, complete );
             else this.failure( re.message, failure, complete );
