@@ -37,3 +37,10 @@ With the combination of 1st node and 2nd node, you can login with id/password.
 
 Note: 3rd node 'email => { uid }', since node key cannot contain '@' and '.', it is replaced by '+'.
 
+
+
+# UPDATE
+ * Jan 21, 2017: changed database structure for database rules and also for listing users in adminpage.
+ * Metadata, id, email.
+ * In firebase database rules you can set rules on every nodes.
+
