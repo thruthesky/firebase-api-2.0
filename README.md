@@ -4,6 +4,8 @@ New Firebase api v2
 # TODO
 @see readme.md of english
 
+ * 01-22-17:  
+
 
 # TEST
 
@@ -40,7 +42,13 @@ Note: 3rd node 'email => { uid }', since node key cannot contain '@' and '.', it
 
 
 # UPDATE
- * Jan 21, 2017: changed database structure for database rules and also for listing users in adminpage.
- * Metadata, id, email.
- * In firebase database rules you can set rules on every nodes.
+   * changed database structure for database rules and also for listing users in adminpage.
+       * Metadata, id, email.
+       * In firebase database rules you can set rules on every nodes. 
+   * database rules
+       * user's metadata is now secured 
+       * still working on securing other nodes; id, email.
+   * Forum CRUD
+
+
 
