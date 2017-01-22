@@ -173,6 +173,7 @@ export class User extends Base {
                  */
                 super.clear();
                 let data = this.getData();
+                data['email'] = email;
                 data['key'] = id;
                 data['uid'] = uid;
                 //console.log("data: ", data);
