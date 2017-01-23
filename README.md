@@ -66,6 +66,7 @@ and then i've set $uid === auth.uid so that each user can read and write/edit fo
       ".write": false,
       "metadata":{
         ".read": "auth.uid === '26QtQm8ihhVOMZDdegvFomCm29M2'",
+        ".write": "auth.uid === '26QtQm8ihhVOMZDdegvFomCm29M2'",
         "$uid": {
           ".read": "$uid === auth.uid",
           ".write": "$uid === auth.uid",
@@ -88,6 +89,7 @@ and then i've set $uid === auth.uid so that each user can read and write/edit fo
       }
   }
 }
+
 
 
 
