@@ -53,16 +53,24 @@ Note: 3rd node 'email => { uid }', since node key cannot contain '@' and '.', it
 
 #Node Structure and database RULE
 current database rules.
+
+rule in metadata in first ".read" you can set a user account considered as admin.
+the user with this uid can read all the data in the user/metadata node.
+and then i've set $uid === auth.uid so that each user can read and write/edit for their info/metadata.
+
+
 {
   "rules": {
     "user": {
-	   ".read": false,
-       ".write": false,
+			".read": false,
+      ".write": false,
       "metadata":{
+        ".read": "auth.uid === '26QtQm8ihhVOMZDdegvFomCm29M2'",
         "$uid": {
           ".read": "$uid === auth.uid",
           ".write": "$uid === auth.uid",
         }
+          
       },
       "email" :{
           ".read": true,
@@ -70,7 +78,7 @@ current database rules.
         
       },
       "id":{
-        ".read" : true,
+        ".read": true,
         ".write": true,
       }
 
@@ -80,6 +88,7 @@ current database rules.
       }
   }
 }
+
 
 
 
