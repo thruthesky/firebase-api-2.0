@@ -12,7 +12,9 @@ import { Injectable } from '@angular/core';
 import { Base } from './base';
 import { USER_LOGIN_DATA } from './interfaces';
 import * as firebase from 'firebase';
+import * as admin from "firebase-admin";
 const KEY_LOGIN_USER = 'loginUser';
+declare function require(name:string);
 @Injectable()
 export class User extends Base {
     auth: firebase.auth.Auth;
@@ -43,6 +45,15 @@ export class User extends Base {
         this.auth = firebase.auth();
         this.loginUser = this.getLoginUserData();
         this.auth.onAuthStateChanged( ( user ) => this.onAuthStateChanged( user ) );
+
+    var serviceAccount = require("path/to/serviceAccountKey.json");
+    
+    admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://<DATABASE_NAME>.firebaseio.com"
+    });
+
+
     }
 
 
@@ -235,7 +246,10 @@ export class User extends Base {
 
 
     /**
+     * 
      * @todo update user passwd on firebase.auth
+     * @description updates the KEY_LOGIN_USER in localStorage so that if ever the user updates his/her data loginUser.name will also be updated.
+     * 
      */
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
@@ -278,14 +292,6 @@ export class User extends Base {
     }
 
 
-    deketeuser(uid){
-        // admin.auth().deleteUser(uid)
-        //     .then( () =>{
-        //         console.log('successfully deleted');
-        //     }).catch( error =>{
-        //         console.log('error ' + error);
-        //     })
-    }
 
     /**
      * @todo it needs to delete data on firebase database.

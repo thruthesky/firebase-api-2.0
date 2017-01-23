@@ -3,8 +3,6 @@ import { Base } from './base';
 import * as firebase from 'firebase';
 
 
-
-
 @Injectable()
 
 export class Forum extends Base {
@@ -35,7 +33,7 @@ export class Forum extends Base {
     
 
     delete( databaseRef:string, key:string, success : ( key: string ) => void, failure: ( error:string ) => void, complete?){
-        this.ref.child( key )
+        this.ref.child( databaseRef +'/'+ key )
         .remove().then( res =>{
             this.success( res, success, complete );
         }, error => this.failure( error, failure, complete) )
