@@ -51,4 +51,35 @@ Note: 3rd node 'email => { uid }', since node key cannot contain '@' and '.', it
    * Forum CRUD
 
 
+#Node Structure and database RULE
+current database rules.
+{
+  "rules": {
+    "user": {
+		
+      "metadata":{
+        "$uid": {
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid",
+        }
+      },
+      "email" :{
+          ".read": true,
+          ".write": true,
+        
+      },
+      "id":{
+        ".read" : true,
+        ".write": true,
+      }
+
+    },
+      "forums":{
+        ".write": true
+      }
+  }
+}
+
+
+
 
