@@ -56,7 +56,8 @@ current database rules.
 {
   "rules": {
     "user": {
-		
+	   ".read": false,
+       ".write": false,
       "metadata":{
         "$uid": {
           ".read": "$uid === auth.uid",
