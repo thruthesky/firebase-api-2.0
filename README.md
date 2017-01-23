@@ -94,4 +94,17 @@ and then i've set $uid === auth.uid so that each user can read and write/edit fo
 
 
 
+#sample accounts
+ aysonsteven
+ password
+ usertest1
+ password
+ usertest2
+ password
+ 
+
+
+
+
+
 
