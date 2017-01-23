@@ -238,6 +238,9 @@ export class User extends Base {
      * @todo update user passwd on firebase.auth
      */
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+        let data = this.getData();
+        this.loginUser.name = data['name'];
+        localStorage.setItem( KEY_LOGIN_USER , JSON.stringify( this.loginUser ) )
         super.update( success, failure, complete );
     }
 
