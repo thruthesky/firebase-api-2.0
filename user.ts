@@ -12,7 +12,6 @@ import { Injectable } from '@angular/core';
 import { Base } from './base';
 import { USER_LOGIN_DATA } from './interfaces';
 import * as firebase from 'firebase';
-// import * as admin from "firebase-admin";
 const KEY_LOGIN_USER = 'loginUser';
 declare function require(name:string);
 @Injectable()
@@ -46,15 +45,8 @@ export class User extends Base {
         this.loginUser = this.getLoginUserData();
         this.auth.onAuthStateChanged( ( user ) => this.onAuthStateChanged( user ) );
 
-    var serviceAccount = require("path/to/serviceAccountKey.json");
-    
-    admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://<DATABASE_NAME>.firebaseio.com"
-    });
-
-
     }
+
 
 
     get loggedIn() : boolean {
