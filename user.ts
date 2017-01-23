@@ -12,7 +12,7 @@ import { Injectable } from '@angular/core';
 import { Base } from './base';
 import { USER_LOGIN_DATA } from './interfaces';
 import * as firebase from 'firebase';
-import * as admin from "firebase-admin";
+// import * as admin from "firebase-admin";
 const KEY_LOGIN_USER = 'loginUser';
 declare function require(name:string);
 @Injectable()
