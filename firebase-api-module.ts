@@ -4,7 +4,7 @@ import { UserTest } from './test/user-test';
 import { Forum } from '../firebase-api-2.0/forum';
 import * as firebase from 'firebase';
 
-<<<<<<< HEAD
+ 
 
 
 
