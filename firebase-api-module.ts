@@ -4,21 +4,22 @@ import { UserTest } from './test/user-test';
 import { Forum } from '../firebase-api-2.0/forum';
 import * as firebase from 'firebase';
 
+<<<<<<< HEAD
 
 
 
 
 
-  var config = {
+
+  const config = {
+    
     apiKey: "AIzaSyCKGAejpeOxxSHELi_Xbo2UdRa8xQPmipU",
     authDomain: "test-ec3e3.firebaseapp.com",
     databaseURL: "https://test-ec3e3.firebaseio.com",
     storageBucket: "test-ec3e3.appspot.com",
     messagingSenderId: "55749236444"
   };
-
-
-
+  
 
 
 // Steven's code
@@ -29,7 +30,8 @@ import * as firebase from 'firebase';
 //     storageBucket: "english-c26df.appspot.com",
 //     messagingSenderId: "629815580059"
 // };
-firebase.initializeApp(config);
+
+firebase.initializeApp( config );
 
 
 @NgModule({
