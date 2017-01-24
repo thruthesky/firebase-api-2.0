@@ -163,11 +163,11 @@ export class User extends Base {
             let uid = user.uid;
             let id = data['id'];
             let email = data['email'];
-            data['key'] = uid;
+            data['key'] = 'meta/'+uid;
             data['uid'] = uid;
             delete data['password'];
             //console.log('data:', data);
-            super.create('metadata', () => { // user create success. user has logged in now.
+            super.create(() => { // user create success. user has logged in now.
                 //console.log("user::create() success. uid: ", uid);
 
 
@@ -178,10 +178,10 @@ export class User extends Base {
                 super.clear();
                 let data = this.getData();
                 data['email'] = email;
-                data['key'] = id;
+                data['key'] = 'id/'+id;
                 data['uid'] = uid;
                 //console.log("data: ", data);
-                super.create('id', (x) => {
+                super.create((x) => {
                     //console.info('user id index success');
 
                     /**
@@ -190,10 +190,10 @@ export class User extends Base {
                     super.clear();
                     let data = this.getData();
                     data['key'] = email.replace('@', '+');
-                    data['key'] = data['key'].replace('.', '-');
+                    data['key'] = 'email/' + data['key'].replace('.', '-');
                     data['id'] = id;
                     data['uid'] = uid;
-                    super.create('email', x => {
+                    super.create( x => {
                         this.setLoginUserData( uid );
                         success( uid );
                     }, failure, complete );
@@ -246,6 +246,7 @@ export class User extends Base {
      */
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
+        data['key'] = 'meta/' + data['key'];
         this.loginUser.name = data['name'];
         localStorage.setItem( KEY_LOGIN_USER , JSON.stringify( this.loginUser ) )
         super.update( success, failure, complete );

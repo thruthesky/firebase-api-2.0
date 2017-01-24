@@ -21,11 +21,11 @@ export class Forum extends Base {
         let data  = this.getData();
         data['key'] = key;
         
-        super.create( forumname, res =>{
-            this.success( res, success, complete)
-        }, error =>{
-            this.failure( error, failure, complete );
-        }, () =>console.log('complete'))
+        // super.create( res =>{
+        //     this.success( res, success, complete)
+        // }, error =>{
+        //     this.failure( error, failure, complete );
+        // }, () =>console.log('complete'))
 
     }
 

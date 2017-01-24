@@ -55,8 +55,17 @@ export class Base {
      * 
      * @note mandatory data
      *      - data('key', '....')
+     * 
+     * 
+     * @code
+     * 
+     * 
+     * post.create( () => console.log('ok'), e => console.error('error:' + e ));
+     * 
+     * 
+     * @endcode
      */
-    create(childref?, success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+    create( success: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
         //console.log("base::create() : ", JSON.stringify( data ));
         let key = data['key'];
@@ -66,12 +75,9 @@ export class Base {
             // this.failure( 'no key', failure, complete );
             ref = this.getPushRef();
         }
-        else ref = this.getRef( childref );
-
-        
+        else ref = this.getRef( key );
 
         ref
-        .child(key)
         .set( data )
             .then( ( re ) => {
                 //console.log("base::create() success");
@@ -88,6 +94,8 @@ export class Base {
     /**
      * Updates a node.
      * It does not create a node.
+     * 
+     * 
      */
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
 
@@ -97,16 +105,16 @@ export class Base {
         if ( key === void 0 ) return this.failure('key is empty.', failure, complete );
         if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
             
-        this.get( 'metadata/'+key, re => {   // yes, key exists on server, so you can update.
+        this.get( key, re => {   // yes, key exists on server, so you can update.
         if ( re == null ) return this.failure('the key does not exists. so it cannot update.', failure, complete );
         console.log("Going to update: data : ", data);
-        this.getRef('metadata/'+ key)
+        this.getRef( key )
             .update( data, re => {
             if ( re == null ) this.success( null, success, complete );
             else this.failure( re.message, failure, complete );
             } )
             .catch( e => this.failure( e.message, failure, complete ) );
-        }, e => this.failure('sync failed: ' + e, failure, complete) );
+        }, e => this.failure('failed on update() => this.get( key ): ' + e, failure, complete) );
     }
 
 
@@ -176,44 +184,7 @@ export class Base {
         return invalidKeys[key] === undefined;
     }
 
+    
 
-    // set( key:string, value:any ) : Base {
-    //     this.data[ key ] = value;
-    //     return this;
-    // }
-
-
-  /**
-   *
-   */
-//   create( successCallback: () => void, failureCallback: (e: string) => void, completeCallback: () => void ) {
-//     console.log('FireframeBase::create() data: ', this.data);
-//     // @deprecated. It submits even if the value is empty. so, you can use it to mark the field as empty.
-//     // this.data = _.omitBy( this.data, _.isEmpty ); // remove empty field.
-
-//     let data = _.cloneDeep(this.data);
-
-//     if ( data.key === void 0 ) { // push the data ( push a key and then set )
-//       console.log('No key. Going to push()');
-//       this.ref
-//         .push( data )
-//         .then( () => { successCallback(); } )
-//         .catch( e => { failureCallback(e.message); } );
-//     }
-//     else { // set the data
-//       let key = data.key;
-//       delete data.key;
-//       console.log('Key exists. Going to set() with key : ' + key);
-//       console.log('FireframeBase::create() data: ', data);
-//       this.list
-//       this.getChildObject( key )
-//         .set( data )
-//         .then( () => { successCallback(); } )
-//         .catch( e => {
-//           console.log("set() ERROR: " + e);
-//           failureCallback(e.message);
-//         } );
-//     }
-//   }
 
 }
