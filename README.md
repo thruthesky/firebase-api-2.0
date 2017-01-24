@@ -92,6 +92,10 @@ and then i've set $uid === auth.uid so that each user can read and write/edit fo
 }
 
 
+metadata {
+  ".read" : "auth.uid == rules.id.admin.uid"
+}
+
 
 
 
