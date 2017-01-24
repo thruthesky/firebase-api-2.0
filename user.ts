@@ -296,18 +296,20 @@ export class User extends Base {
            userdata = res;
            this.delete( 'email', userdata['email'].replace('@', '+').replace('.', '-'), res =>{
                console.log('deleted email' );
+
                this.delete('id', userdata['id'], res =>{
                    console.log('deleted id ' );
+
                    this.delete('metadata', userdata['uid'], res =>{
                        console.log('deleted metadata');
-                        user.delete().then( () => {
 
+                        user.delete().then( () => {
                             this.deleteLoginUserData();
                             this.success( null, success, complete);
                         },
                         error => {
-                            var errorCode = error['code'];
-                            var errorMessage = error.message;
+                            let errorCode = error['code'];
+                            let errorMessage = error.message;
                             this.failure( errorCode + ' : ' + errorMessage, failure, complete );
                         });
                    }, error =>{})
