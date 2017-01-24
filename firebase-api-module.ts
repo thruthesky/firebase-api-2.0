@@ -4,6 +4,13 @@ import { UserTest } from './test/user-test';
 import { Forum } from '../firebase-api-2.0/forum';
 import * as firebase from 'firebase';
 
+<<<<<<< HEAD
+=======
+ 
+
+
+
+>>>>>>> 7599389fade95fa82886caf303106e7f5b61a29c
 
 
 

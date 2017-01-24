@@ -15,17 +15,17 @@ export class Forum extends Base {
     /**
      * @param forumname {string} this will define the category of the forum, if it's QnA, Reminder, or LevelTest.
      */
-    create( forumname?, success?: ( id: string ) => void, failure?: ( error : string ) => void, complete? ){
+    create( success?: ( id: string ) => void, failure?: ( error : string ) => void, complete? ){
         
         let key = this.ref.push().key;
         let data  = this.getData();
         data['key'] = key;
-        
-        // super.create( res =>{
-        //     this.success( res, success, complete)
-        // }, error =>{
-        //     this.failure( error, failure, complete );
-        // }, () =>console.log('complete'))
+  
+        super.create( res =>{
+            this.success( res, success, complete)
+        }, error =>{
+            this.failure( error, failure, complete );
+        }, () =>console.log('complete'))
 
     }
 

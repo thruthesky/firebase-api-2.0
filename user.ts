@@ -93,7 +93,7 @@ export class User extends Base {
         this.loginUser = data;
 
         // 2. get user name from firebase database over network.
-        this.get( 'metadata/'+uid, user => {
+        this.get( uid, user => {
             if ( user ) {
                 // console.log("user: ", user);
                 data = {
@@ -181,7 +181,9 @@ export class User extends Base {
                 data['key'] = 'id/'+id;
                 data['uid'] = uid;
                 //console.log("data: ", data);
-                super.create((x) => {
+
+                super.create( (x) => {
+                    
                     //console.info('user id index success');
 
                     /**
@@ -288,47 +290,18 @@ export class User extends Base {
 
 
     /**
-     * @description this method will delete user's account in firebase authentication
+     * @todo it needs to delete data on firebase database.
      */
-    resign( success, failure?: ( error: string ) => void, complete? ) {
-        let user = firebase.auth().currentUser;
-        let userdata;
-        this.get( 'metadata/'+this.loginUser.uid , res =>{
-           userdata = res;
-           this.delete( 'email', userdata['email'].replace('@', '+').replace('.', '-'), res =>{
-               console.log('deleted email' );
-
-               this.delete('id', userdata['id'], res =>{
-                   console.log('deleted id ' );
-
-                   this.delete('metadata', userdata['uid'], res =>{
-                       console.log('deleted metadata');
-
-                        user.delete().then( () => {
-                            this.deleteLoginUserData();
-                            this.success( null, success, complete);
-                        },
-                        error => {
-                            let errorCode = error['code'];
-                            let errorMessage = error.message;
-                            this.failure( errorCode + ' : ' + errorMessage, failure, complete );
-                        });
-                   }, error =>{})
-               }, err =>{})
-           }, error =>{})
-        }, err => { console.error('error ' + err )})
-
-    }
-
-    /**
-     * 
-     * @description this method will delete user's account info from firebase database.
-     * 
-     */
-    delete( childnode:string, key:string, success : ( key: string ) => void, failure: ( error:string ) => void, complete?){
-        this.ref.child('user/'+childnode +'/'+ key )
-        .remove().then( res =>{
-            this.success( res, success, complete );
-        }, error => this.failure( error, failure, complete) )
+    delete( success, failure?: ( error: string ) => void, complete? ) {
+         let user = this.auth.currentUser;
+         user.delete().then( () => {
+                 this.deleteLoginUserData();
+                 this.success( null, success, complete);
+             },
+             error => {
+                 var errorCode = error['code'];
+                 var errorMessage = error.message;
+                this.failure( errorCode + ' : ' + errorMessage, failure, complete );
+    });
     }
 }
