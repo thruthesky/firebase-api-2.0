@@ -38,6 +38,40 @@ export class UserTest {
     }
 
 
+
+    create_login_test() {
+        console.log( '=== create_login_test() begin ===');
+        this.logout( () => {
+            if ( this.user.loginUser ) return console.error("Failed: logout");
+            let id = this.getUserId('userO1')
+            this.createUser( id, ( uid: string ) => {
+                //console.info("createUser() uid: ", uid);
+                if ( this.user.loginUser ) console.info("Success: the user has logged in already");
+                else return console.error("Failed: User has not logged in after create an account");
+
+                this.logout(() => {
+                    if ( ! this.user.loginUser ) console.info("Success: the user has logged out successfully.");
+                    else return console.error("Failed: logout failed.");
+
+                    this.login( id, uid => {
+                        if ( this.user.loginUser ) {
+                            console.info("Success: the user has logged in: ", this.user.loginUser);
+                            this.updateUser( uid, res =>{
+                                console.info('deleted ' );
+                                this.deleteUser( res =>{
+                                    console.info('deleted ')
+                                })
+                            })
+                        }
+                        else return console.error("Failed: login failed");
+                    });
+
+                });
+            });
+        });
+    }
+
+
     /**
      * After success of 'user.create()', the user has logged in automatically.
      */
@@ -112,35 +146,5 @@ export class UserTest {
 
 
 
-    create_login_test() {
-        console.log( '=== create_login_test() begin ===');
-        this.logout( () => {
-            if ( this.user.loginUser ) return console.error("Failed: logout");
-            let id = this.getUserId('userO1')
-            this.createUser( id, ( uid: string ) => {
-                //console.info("createUser() uid: ", uid);
-                if ( this.user.loginUser ) console.info("Success: the user has logged in already");
-                else return console.error("Failed: User has not logged in after create an account");
 
-                this.logout(() => {
-                    if ( ! this.user.loginUser ) console.info("Success: the user has logged out successfully.");
-                    else return console.error("Failed: logout failed.");
-
-                    this.login( id, uid => {
-                        if ( this.user.loginUser ) {
-                            console.info("Success: the user has logged in: ", this.user.loginUser);
-                            this.updateUser( uid, res =>{
-                                console.info('deleted ' );
-                                this.deleteUser( res =>{
-                                    console.info('deleted ')
-                                })
-                            })
-                        }
-                        else return console.error("Failed: login failed");
-                    });
-
-                });
-            });
-        });
-    }
 }
