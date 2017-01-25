@@ -1,12 +1,12 @@
 /**
- * 
+ *
  * @attention User Login Check
  *      - Since 'user login state' is based on 'firebase.auth()' that needs to connect to firebase server over netowrk, the 'login check' takes some time.
  *      - And you don't want to wait.
  *          -- Once a user login, 'user' key of LocalStorage will hold user information until the user data in localstorage destroyed or the user logs out.
- *          -- use 'loginUser' to get the login user's data in LocalStorage. 
- * 
- * 
+ *          -- use 'loginUser' to get the login user's data in LocalStorage.
+ *
+ *
  */
 import { Injectable } from '@angular/core';
 import { Base } from './base';
@@ -20,9 +20,9 @@ export class User extends Base {
     auth: firebase.auth.Auth;
 
     /**
-     * 
+     *
      * @var loginUser
-     * 
+     *
      * @note get login user's data.
      * @note use this variable any time, any where. if this variable is true, then the user has logged in.
      * @note this is a variable changed on
@@ -33,9 +33,9 @@ export class User extends Base {
      *      when this provider injected into a component,
      *      there will not be second contructor call and nor user's data load.
      *      So, it is one time run and use everywhere.
-     * 
-     * 
-     * 
+     *
+     *
+     *
      */
     loginUser: USER_LOGIN_DATA = null;
 
@@ -74,7 +74,7 @@ export class User extends Base {
      */
     private setLoginUserData( uid: string ) {
         if ( ! uid ) return alert("CRITICAL ERROR: uid cannot be null on setLoginUserData()");
-        
+
         // 1. save uid only. since you cannot get user name yet.
         let data: USER_LOGIN_DATA = {
             uid: uid,
@@ -93,7 +93,7 @@ export class User extends Base {
         this.loginUser = data;
 
         // 2. get user name from firebase database over network.
-        this.get( uid, user => {
+        this.get( 'meta/'+uid, user => {
             if ( user ) {
                 // console.log("user: ", user);
                 data = {
@@ -125,7 +125,7 @@ export class User extends Base {
     }
 
     /**
-     * 
+     *
      */
     onAuthStateChanged( user: firebase.User ) {
         // console.info("onAuthStateChanged: loginUser: ", this.loginUser );
@@ -136,10 +136,10 @@ export class User extends Base {
             // console.log("logout");
         }
     }
-    
+
 
     /**
-     * 
+     *
      * @note mandatory data.
      *      data['id'] as key
      *      data['email']
@@ -149,7 +149,7 @@ export class User extends Base {
      *      data['gener']
      *      data['birthday']
      *      data['mobile']
-     * 
+     *
      * @note on success callback, 'firebase.User.uid' will be passed as parameter.
      * @attention once user account has created, the user has logged in automatically.
      * @see UserTest::create_login_test()
@@ -157,7 +157,7 @@ export class User extends Base {
     create( success?: ( uid: string ) => void, failure?: (error?: any) => void, complete?: () => void ) {
         //console.log("user::create()");
         let data = this.getData();
-        
+
         this.register( data['email'], data['password'], user => { // user register into firebase authentication.
             // console.log('user::register() : ', user);
             let uid = user.uid;
@@ -183,7 +183,7 @@ export class User extends Base {
                 //console.log("data: ", data);
 
                 super.create( (x) => {
-                    
+
                     //console.info('user id index success');
 
                     /**
@@ -207,15 +207,15 @@ export class User extends Base {
 
 
     /**
-     * 
+     *
      * reset Password.
      * @description: user needs to provide a valid and registered email address, firebase authentication API.
-     * 
+     *
      */
     resetpassword( email: string, success, failure, complete){
         this.auth.sendPasswordResetEmail(email).then(()=>{
             this.success('password reset sent to your email', success, complete );
-        }, error =>{ 
+        }, error =>{
             var errorCode = error['code'];
             var errorMessage = error.message;
             this.failure( errorCode + ' : ' + errorMessage )
@@ -241,14 +241,13 @@ export class User extends Base {
 
 
     /**
-     * 
+     *
      * @todo update user passwd on firebase.auth
      * @description updates the KEY_LOGIN_USER in localStorage so that if ever the user updates his/her data loginUser.name will also be updated.
-     * 
+     *
      */
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
-        data['key'] = 'meta/' + data['key'];
         this.loginUser.name = data['name'];
         localStorage.setItem( KEY_LOGIN_USER , JSON.stringify( this.loginUser ) )
         super.update( success, failure, complete );
@@ -258,7 +257,7 @@ export class User extends Base {
 
     /**
      * User log out.
-     * 
+     *
      * @use to log out.
      */
     logout( success?, failure?, complete?: () => void ) {
@@ -272,7 +271,7 @@ export class User extends Base {
 
     /**
      * User login.
-     * 
+     *
      * @use to login.
      */
     login( email, password, success: ( uid: string ) => void, failure: ( error: string ) => void, complete? ) {
@@ -289,19 +288,103 @@ export class User extends Base {
 
 
 
+
+
     /**
+     *
      * @todo it needs to delete data on firebase database.
+     *
      */
-    delete( success, failure?: ( error: string ) => void, complete? ) {
-         let user = this.auth.currentUser;
-         user.delete().then( () => {
-                 this.deleteLoginUserData();
-                 this.success( null, success, complete);
-             },
-             error => {
-                 var errorCode = error['code'];
-                 var errorMessage = error.message;
+    resign( success, failure?: ( error: string ) => void, complete? ) {
+
+        this.deleteuserdata( res =>{
+            this.deleteuser( res =>{
+                this.success( res , success );
+            }, err => this.failure( err, failure ) )
+            this.success( res );
+
+        }, err =>{})
+    }
+
+
+    /**
+     *
+     * @description this will delete user account in firebase authentication
+     *
+     */
+    deleteuser( success, failure?, complete? ){
+        let user = firebase.auth().currentUser;
+        user.delete().then( () => {
+                this.deleteLoginUserData();
+
+                this.success( null, success, complete);
+            },
+            error => {
+                var errorCode = error['code'];
+                var errorMessage = error.message;
                 this.failure( errorCode + ' : ' + errorMessage, failure, complete );
-    });
+            });
+    }
+
+
+    /**
+     *
+     *
+     * @description this will delete user data in firebase database
+     *
+     *
+     */
+
+
+    deleteuserdata( success, failure?, complete?){
+        let data;
+        this.get( 'meta/'+this.loginUser.uid , res =>{
+                data = res;
+                this.deleteMeta( res =>{
+                    console.info(' deleted ::: meta::: ' + res );
+                    this.deleteID( data, res =>{
+                        console.info(' deleted ::: id ::: ' + res );
+                        this.deleteEmail( data, res =>{
+                            console.info( ' deleted ::: email ::: ' + res );
+                        })
+                    })
+                    this.success( res, success );
+                }, err => console.error('error ' + err ) )
+            }, err=> console.error( 'error :: ' + err ),
+            ()=>{
+                console.info( 'finished' )
+            })
+    }
+
+    deleteID( data, success?, failure? ){
+        super.data('node', 'user')
+            .data('child' , 'id')
+            .data('key', data['id'])
+            .delete( res =>{
+                console.info('deleted :: id ::' + res)
+                this.success( res, success );
+            }, err =>{})
+    }
+
+    deleteMeta( success, failure?, complete?){
+        super.data('node', 'user')
+            .data('child', 'meta' )
+            .data('key', this.loginUser.uid )
+            .delete( res=>{
+                console.info( 'deleted :: meta :: ' + res );
+                this.success( res, success );
+            }, err =>{
+                this.failure( err , failure );
+            })
+    }
+
+    deleteEmail( data, success?, failure?, complete? ){
+        super.data('node', 'user')
+            .data('child', 'email')
+            .data('key', data['email'].replace('@', '+').replace('.', '-'))
+            .delete( res =>{
+                console.info( 'delete ::: email :: ' + res );
+                this.success( res, success );
+            }, err => this.failure ( err, failure ))
     }
 }

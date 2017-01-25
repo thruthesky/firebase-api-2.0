@@ -6,150 +6,155 @@ export const TEST_PASSWORD = 'Wc~,123a*';
 @Injectable()
 export class UserTest {
 
-    constructor( private user: User ) {
-    }
+  constructor( private user: User ) {
+  }
 
-    run() {
- 
-            if( this.user.loggedIn ) this.user.logout();
-            this.create_login_test();
-        
-    }
+  run() {
 
+    if( this.user.loggedIn ) this.user.logout();
+    this.create_login_test();
 
-    getUserId( id ) {
-        return id + (new Date).getMinutes() + (new Date).getSeconds();
-    }
+  }
 
 
+  getUserId( id ) {
+    return id + (new Date).getMinutes() + (new Date).getSeconds();
+  }
 
-     create_login_test() {
-          console.log( '=== create_login_test() begin ===');
-          this.logout( () => {
-             if ( this.user.loginUser ) return console.error("Failed: logout");
-              let id = this.getUserId('user');
-              this.createUser( id, ( uid: string ) => {
-                  //console.info("createUser() uid: ", uid);
-                  if ( this.user.loginUser ) console.info("Success: the user has logged in already");
-                  else return console.error("Failed: User has not logged in after create an account");
-  
-                  this.logout(() => {
-                      if ( ! this.user.loginUser ) console.info("Success: the user has logged out successfully.");
-                      else return console.error("Failed: logout failed.");
-  
-                      this.login( id, uid => {
-                          if ( this.user.loginUser ) {
-                              console.info("Success: the user has logged in: ", this.user.loginUser);
-                              this.updateUser( uid , () =>console.info('updated'))
-                          }
-                          else return console.error("Failed: login failed");
-                      });
-  
-                  });
-              });
+
+
+  create_login_test() {
+    console.log( '=== create_login_test() begin ===');
+    this.logout( () => {
+      if ( this.user.loginUser ) return console.error("Failed: logout");
+      let id = this.getUserId('user');
+      this.createUser( id, ( uid: string ) => {
+        //console.info("createUser() uid: ", uid);
+        if ( this.user.loginUser ) console.info("Success: the user has logged in already");
+        else return console.error("Failed: User has not logged in after create an account");
+
+        this.logout(() => {
+          if ( ! this.user.loginUser ) console.info("Success: the user has logged out successfully.");
+          else return console.error("Failed: logout failed.");
+
+          this.login( id, uid => {
+            if ( this.user.loginUser ) {
+              console.info("Success: the user has logged in: ", this.user.loginUser);
+              this.updateUser( uid , () =>{
+                console.info('updated');
+                  this.deleteUser( () =>{
+                      console.info( 'DELETED' );
+                  })
+              })
+            }
+            else return console.error("Failed: login failed");
           });
-      }
+
+        });
+      });
+    });
+  }
 
 
-    singleUserTest_CRUD_logInOut() {
-        let id = this.getUserId('user.');
-        this.createUser( id, ( uid: string ) => {
-            console.log('uid : ', uid);
-            this.getUser(  ( uid ) =>
-                this.updateUser( uid, () => 
-                    this.logout( () => 
-                        this.login( id, () => 
-                            this.deleteUser( () =>
-                                console.log("TEST COMPLETE on UserTest::singleUserTest_CRUD_logInOut()!")
-                            )
-                        )
-                    )
-                )
+  singleUserTest_CRUD_logInOut() {
+    let id = this.getUserId('user.');
+    this.createUser( id, ( uid: string ) => {
+      console.log('uid : ', uid);
+      this.getUser(  ( uid ) =>
+        this.updateUser( uid, () =>
+          this.logout( () =>
+            this.login( id, () =>
+              this.deleteUser( () =>
+                console.log("TEST COMPLETE on UserTest::singleUserTest_CRUD_logInOut()!")
+              )
             )
-        });
-    }
+          )
+        )
+      )
+    });
+  }
 
 
 
 
-    /**
-     * After success of 'user.create()', the user has logged in automatically.
-     */
-    createUser( id, success ) {
-        console.log("Going to create user : " + id);
-        this.user.data('key', id)
-            .data('id', id )
-            .data('mobile', '0912372178462')
-            .data('birthdate' , '09-1-16')
-            .data('gender' , 'M') 
-            .data('email', id + '@gmail.com')
-            .data('password', TEST_PASSWORD )
-            .data('name', id + '-name')
-            .create(
-                ( uid ) => { 
-                    console.log(`create ${id} : success ${uid}`); 
-                    success( uid ); 
-                },
-                (e) => console.error(`create ${id}: failure:`, e),
-                () => console.log(`create ${id} : complete`) );
-                
-    }
-    
-
-    getUser(  success ) {
-        this.user.get( this.user.loginUser.uid , user => {
-            console.log('getUser: success: ', user );
-            success( user.uid );
+  /**
+   * After success of 'user.create()', the user has logged in automatically.
+   */
+  createUser( id, success ) {
+    console.log("Going to create user : " + id);
+    this.user.data('key', id)
+      .data('id', id )
+      .data('mobile', '0912372178462')
+      .data('birthdate' , '09-1-16')
+      .data('gender' , 'M')
+      .data('email', id + '@gmail.com')
+      .data('password', TEST_PASSWORD )
+      .data('name', id + '-name')
+      .create(
+        ( uid ) => {
+          console.log(`create ${id} : success ${uid}`);
+          success( uid );
         },
-        e => console.error("get user-abc: failure: ", e ),
-        () => console.log("get user-abc: complete") );
-    }
-    updateUser( uid, success ) {
+        (e) => console.error(`create ${id}: failure:`, e),
+        () => console.log(`create ${id} : complete`) );
+
+  }
+
+
+  getUser(  success ) {
+    this.user.get( this.user.loginUser.uid , user => {
+        console.log('getUser: success: ', user );
+        success( user.uid );
+      },
+      e => console.error("get user-abc: failure: ", e ),
+      () => console.log("get user-abc: complete") );
+  }
+  updateUser( uid, success ) {
     this.user.clear()
-        .data( 'key', uid )
-        .data( 'name', TEST_NEW_NAME )
-        .data( 'mobile' , '1234123861926' )
-        .data( 'gender' , 'F' )
-        .data( 'birthdate', '1-1-16' )
-        .update(
-            () => {
-                console.log(`user update: ${uid} : success.`);
-                success();
-            } ,
-            e => console.error( `user update: ${uid} : failure: `, e ),
-            () => {  }
-        );
-    }
+      .data( 'key', uid )
+      .data( 'name', TEST_NEW_NAME )
+      .data( 'mobile' , '1234123861926' )
+      .data( 'gender' , 'F' )
+      .data( 'birthdate', '01-01-16' )
+      .update(
+        () => {
+          console.log(`user update: ${uid} : success.`);
+          success();
+        } ,
+        e => console.error( `user update: ${uid} : failure: `, e ),
+        () => { }
+      );
+  }
 
 
-    logout( success: () => void ) {
-        this.user.logout( () => {
-            console.log('logout ok');
-            success();
-         }, () => console.error('logout failed') );
-    }
+  logout( success: () => void ) {
+    this.user.logout( () => {
+      console.log('logout ok');
+      success();
+    }, () => console.error('logout failed') );
+  }
 
 
 
-    login( id, success: (uid: string) => void ) {
-        let email = id + '@gmail.com';
-        let password = TEST_PASSWORD;
-        this.user.login( email, password, uid => {
-            console.log( "Login ok: ", uid );
-            success( uid );
-        },
-        error => {
-            console.error("Login error: ", error );
-        });
-    }
+  login( id, success: (uid: string) => void ) {
+    let email = id + '@gmail.com';
+    let password = TEST_PASSWORD;
+    this.user.login( email, password, uid => {
+        console.log( "Login ok: ", uid );
+        success( uid );
+      },
+      error => {
+        console.error("Login error: ", error );
+      });
+  }
 
 
-    deleteUser( success ) {
-        this.user.delete( () => {
-            console.log( "user delete ok" );
-            success();
-        }, e => console.log( 'deleteuser() error ', e ) );
-    }
+  deleteUser( success ) {
+    this.user.resign( () => {
+      console.log( "user delete ok" );
+      success();
+    }, e => console.log( 'deleteuser() error ', e ) );
+  }
 
 
 
