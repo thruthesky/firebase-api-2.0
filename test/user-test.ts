@@ -40,7 +40,12 @@ export class UserTest {
                       this.login( id, uid => {
                           if ( this.user.loginUser ) {
                               console.info("Success: the user has logged in: ", this.user.loginUser);
-                              this.updateUser( uid , () =>console.info('updated'))
+                              this.updateUser( uid , () =>{
+                                  console.info('updated');
+                                //   this.deleteUser( () =>{
+                                //       console.info( 'DELETED' );
+                                //   })
+                              })
                           }
                           else return console.error("Failed: login failed");
                       });
@@ -110,14 +115,14 @@ export class UserTest {
         .data( 'name', TEST_NEW_NAME )
         .data( 'mobile' , '1234123861926' )
         .data( 'gender' , 'F' )
-        .data( 'birthdate', '1-1-16' )
+        .data( 'birthdate', '01-01-16' )
         .update(
             () => {
                 console.log(`user update: ${uid} : success.`);
                 success();
             } ,
             e => console.error( `user update: ${uid} : failure: `, e ),
-            () => {  }
+            () => { }
         );
     }
 
@@ -145,7 +150,7 @@ export class UserTest {
 
 
     deleteUser( success ) {
-        this.user.delete( () => {
+        this.user.resign( () => {
             console.log( "user delete ok" );
             success();
         }, e => console.log( 'deleteuser() error ', e ) );

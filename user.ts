@@ -93,7 +93,7 @@ export class User extends Base {
         this.loginUser = data;
 
         // 2. get user name from firebase database over network.
-        this.get( uid, user => {
+        this.get( 'meta/'+uid, user => {
             if ( user ) {
                 // console.log("user: ", user);
                 data = {
@@ -248,7 +248,6 @@ export class User extends Base {
      */
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
-        data['key'] = 'meta/' + data['key'];
         this.loginUser.name = data['name'];
         localStorage.setItem( KEY_LOGIN_USER , JSON.stringify( this.loginUser ) )
         super.update( success, failure, complete );
@@ -289,19 +288,103 @@ export class User extends Base {
 
 
 
+
+
     /**
+     * 
      * @todo it needs to delete data on firebase database.
+     * 
      */
-    delete( success, failure?: ( error: string ) => void, complete? ) {
-         let user = this.auth.currentUser;
+    resign( success, failure?: ( error: string ) => void, complete? ) {
+
+        this.deleteuserdata( res =>{
+            this.deleteuser( res =>{
+             this.success( res , success );   
+            }, err => this.failure( err, failure ) )
+            this.success( res );
+
+        }, err =>{})
+    }
+
+
+    /**
+     * 
+     * @description this will delete user account in firebase authentication
+     * 
+     */
+    deleteuser( success, failure?, complete? ){
+         let user = firebase.auth().currentUser;
          user.delete().then( () => {
                  this.deleteLoginUserData();
+
                  this.success( null, success, complete);
              },
              error => {
                  var errorCode = error['code'];
                  var errorMessage = error.message;
                 this.failure( errorCode + ' : ' + errorMessage, failure, complete );
-    });
+        });
+    }
+
+
+    /**
+     * 
+     * 
+     * @description this will delete user data in firebase database
+     * 
+     * 
+     */
+
+
+    deleteuserdata( success, failure?, complete?){
+        let data;
+        this.get( 'meta/'+this.loginUser.uid , res =>{
+            data = res;
+            this.deleteMeta( res =>{
+                console.info(' deleted ::: meta::: ' + res );
+                this.deleteID( data, res =>{
+                    console.info(' deleted ::: id ::: ' + res );
+                    this.deleteEmail( data, res =>{
+                        console.info( ' deleted ::: email ::: ' + res );
+                    })
+                })
+                this.success( res, success );
+            }, err => console.error('error ' + err ) ) 
+        }, err=> console.error( 'error :: ' + err ), 
+        ()=>{
+            console.info( 'finished' )
+        })
+    }
+
+    deleteID( data, success?, failure? ){
+        super.data('node', 'user')
+             .data('child' , 'id')
+             .data('key', data['id'])
+             .delete( res =>{
+                console.info('deleted :: id ::' + res)
+                this.success( res, success );
+            }, err =>{})
+    }
+
+    deleteMeta( success, failure?, complete?){
+        super.data('node', 'user')
+                .data('child', 'meta' )
+                .data('key', this.loginUser.uid )
+                .delete( res=>{
+                    console.info( 'deleted :: meta :: ' + res );
+                    this.success( res, success );
+        }, err =>{
+            this.failure( err , failure );
+        })
+    }
+
+    deleteEmail( data, success?, failure?, complete? ){
+        super.data('node', 'user')
+             .data('child', 'email')
+             .data('key', data['email'].replace('@', '+').replace('.', '-'))
+             .delete( res =>{
+                 console.info( 'delete ::: email :: ' + res );
+                 this.success( res, success );
+             }, err => this.failure ( err, failure ))
     }
 }

@@ -97,11 +97,11 @@ export class Base {
      * 
      * 
      */
-    update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+    update( success: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
 
         let data = this.getData();
         console.log("base::update() : data : ", JSON.stringify(data));
-        let key = data['key'];
+        let key = 'meta/'+data['key'];
         if ( key === void 0 ) return this.failure('key is empty.', failure, complete );
         if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
             
@@ -121,9 +121,10 @@ export class Base {
     /**
      * @description: page method is for getting list with pagination.
      */
-  page( databaseRef, success, failure, complete? ) {
+  page( success, failure, complete? ) {
     let num = ( this.data['numberOfPosts'] ? this.data['numberOfPosts'] : 8 ) + 1;
-    let ref = firebase.database().ref( databaseRef )
+    let data = this.getData();
+    let ref = firebase.database().ref( data['dbref'] );
     let order = ref.orderByKey();
     let query;
     let newData;
@@ -160,18 +161,22 @@ export class Base {
      *      - instead of passing 'null' with success,
      *      - failure callback will be called.
      */
-    get(key, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
-        // console.log("base::get() key: ", key);
-        this.getRef( key ).once( 'value', snapshot => {
-            if ( snapshot.exists() ) {
-                // console.log("base::get() snapshot : ", snapshot.val() );
-                let val = snapshot.val();
-                if ( val ) this.success( val, success, complete );
-                else this.failure( 'no-data', failure, complete )
-            }
-            else this.failure( null, failure, complete );
-        }, () => this.failure( 'unknown-get-error', failure, complete ) );
-    }
+     get(key, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
+          // console.log("base::get() key: ", key);
+          this.getRef( key ).once( 'value', snapshot => {
+              if ( snapshot.exists() ) {
+                  // console.log("base::get() snapshot : ", snapshot.val() );
+                  let val = snapshot.val();
+                  if ( val ) this.success( val, success, complete );
+                  else this.failure( 'no-data', failure, complete )
+                  
+              }
+              else this.failure( null, failure, complete );
+          }, () => {
+              this.failure( 'unknown-get-error', failure, complete );
+              this.clear();
+          } );
+      }
 
 
     /**
@@ -184,6 +189,20 @@ export class Base {
         return invalidKeys[key] === undefined;
     }
 
+    /**
+     * 
+     */
+    delete(  success : ( success: string ) => void, failure: ( error:string ) => void, complete?){
+        let data = this.getData()
+        let childnode = data['child'];
+        let key = data['key'];
+        let table = data['node'];
+        let ref = firebase.database().ref();
+        ref.child( table +'/'+childnode +'/'+ key )
+        .remove().then( res =>{
+            this.success( res, success, complete );
+        }, error => this.failure( error, failure, complete))
+    }
     
 
 

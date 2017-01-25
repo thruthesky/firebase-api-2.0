@@ -32,13 +32,6 @@ export class Forum extends Base {
 
     
 
-    delete( forumcategory, childnode:string, key:string, success : ( key: string ) => void, failure: ( error:string ) => void, complete?){
-        this.ref.child( forumcategory +'/'+childnode +'/'+ key )
-        .remove().then( res =>{
-            this.success( res, success, complete );
-        }, error => this.failure( error, failure, complete) )
-    }
-
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         super.update( success, failure, complete );
     }
