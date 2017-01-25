@@ -97,7 +97,7 @@ export class Base {
      * 
      * 
      */
-    update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+    update( success: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
 
         let data = this.getData();
         console.log("base::update() : data : ", JSON.stringify(data));
@@ -163,17 +163,19 @@ export class Base {
      */
      get(key, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
           // console.log("base::get() key: ", key);
-          let data = this.getData();
-          if( data['child'] ) key  = data['child'] + key
           this.getRef( key ).once( 'value', snapshot => {
               if ( snapshot.exists() ) {
                   // console.log("base::get() snapshot : ", snapshot.val() );
                   let val = snapshot.val();
                   if ( val ) this.success( val, success, complete );
                   else this.failure( 'no-data', failure, complete )
+                  
               }
               else this.failure( null, failure, complete );
-          }, () => this.failure( 'unknown-get-error', failure, complete ) );
+          }, () => {
+              this.failure( 'unknown-get-error', failure, complete );
+              this.clear();
+          } );
       }
 
 
@@ -187,6 +189,20 @@ export class Base {
         return invalidKeys[key] === undefined;
     }
 
+    /**
+     * 
+     */
+    delete(  success : ( success: string ) => void, failure: ( error:string ) => void, complete?){
+        let data = this.getData()
+        let childnode = data['child'];
+        let key = data['key'];
+        let table = data['node'];
+        let ref = firebase.database().ref();
+        ref.child( table +'/'+childnode +'/'+ key )
+        .remove().then( res =>{
+            this.success( res, success, complete );
+        }, error => this.failure( error, failure, complete))
+    }
     
 
 

@@ -101,6 +101,8 @@ metadata {
 
 
 #sample accounts
+ admin
+ password
  aysonsteven
  password
  usertest1
