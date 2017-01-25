@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Base } from '../base';
 
 @Injectable()
-export class UserTest {
+export class BaseTest {
 
     constructor( private base: Base ) {
     }
