@@ -10,34 +10,34 @@ export class Base {
     db: firebase.database.Database;
     storage: firebase.storage.Storage;
     __node: string = null;
-    __data: any = {};
+    //__data: any = {};
     constructor() {
         this.db = firebase.database();
         this.storage = firebase.storage();
     }
 
-    clear() : Base {
-        this.__data = {};
-        return this;
-    }
-    data( k, v ) : Base {
-        this.__data[ k ] = v;
-        return this;
-    }
+    // clear() : Base {
+    //     this.__data = {};
+    //     return this;
+    // }
+    // data( k, v ) : Base {
+    //     this.__data[ k ] = v;
+    //     return this;
+    // }
     /**
      * @attention Remember! it's a place holder. changes after this call will be applied into this.__data.
      */
-    getData() {
-        return this.__data;
-    }
+    // getData() {
+    //     return this.__data;
+    // }
     node( node ) : Base {
         this.__node = node;
         return this;
     }
-    getRef( key ) : firebase.database.Reference {
+    ref( key ) : firebase.database.Reference {
         return this.db.ref( '/' + this.__node + '/' + key );
     }
-    getPushRef() : firebase.database.Reference {
+    push() : firebase.database.Reference {
         return this.db.ref( '/' + this.__node ).push();
     }
     success( re?: any, success?: (re?: any) => void, complete?: () => void ) {
@@ -65,17 +65,17 @@ export class Base {
      * 
      * @endcode
      */
-    create( success: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
-        let data = this.getData();
+    create( key: string, data: any, success: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+        //let data = this.getData();
         //console.log("base::create() : ", JSON.stringify( data ));
-        let key = data['key'];
+        //let key = data['key'];
         if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
         let ref;
         if ( key === void 0 ) {
             // this.failure( 'no key', failure, complete );
-            ref = this.getPushRef();
+            ref = this.push();
         }
-        else ref = this.getRef( key );
+        else ref = this.ref( key );
 
         ref
         .set( data )
@@ -97,59 +97,62 @@ export class Base {
      * 
      * 
      */
-    update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+    update( key: string, data: any, success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
 
-        let data = this.getData();
+        //let data = this.getData();
         console.log("base::update() : data : ", JSON.stringify(data));
-        let key = data['key'];
+        //let key = data['key'];
         if ( key === void 0 ) return this.failure('key is empty.', failure, complete );
         if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
             
         this.get( key, re => {   // yes, key exists on server, so you can update.
-        if ( re == null ) return this.failure('the key does not exists. so it cannot update.', failure, complete );
-        console.log("Going to update: data : ", data);
-        this.getRef( key )
-            .update( data, re => {
-            if ( re == null ) this.success( null, success, complete );
-            else this.failure( re.message, failure, complete );
-            } )
-            .catch( e => this.failure( e.message, failure, complete ) );
-        }, e => this.failure('failed on update() => this.get( key ): ' + e, failure, complete) );
+            if ( re == null ) return this.failure('the key does not exists. so it cannot update.', failure, complete );
+            console.log("Going to update: data : ", data);
+            this.ref( key )
+                .update( data, re => {
+                    if ( re == null ) this.success( null, success, complete );
+                    else this.failure( re.message, failure, complete );
+                } )
+                .catch( e => this.failure( e.message, failure, complete ) );
+        },
+        e => {
+            this.failure('failed on update() => this.get( key ): no data on that key', failure, complete);
+        });
     }
 
 
     /**
      * @description: page method is for getting list with pagination.
      */
-  page( databaseRef, success, failure, complete? ) {
-    let num = ( this.data['numberOfPosts'] ? this.data['numberOfPosts'] : 8 ) + 1;
-    let ref = firebase.database().ref( databaseRef )
-    let order = ref.orderByKey();
-    let query;
-    let newData;
-    if ( this.pagination_key ) {
-      query = order.endAt( this.pagination_key ).limitToLast( num );
-    }
-    else {
-      query = order.limitToLast(num);
-    }
+  page( node: string, options: any, success, failure, complete? ) {
+    // let num = ( options['numberOfPosts'] ? options['numberOfPosts'] : 8 ) + 1;
+    // let ref = firebase.database().ref( node )
+    // let order = ref.orderByKey();
+    // let query;
+    // let newData;
+    // if ( this.pagination_key ) {
+    //   query = order.endAt( this.pagination_key ).limitToLast( num );
+    // }
+    // else {
+    //   query = order.limitToLast(num);
+    // }
 
-    query
-      .once('value', snapshot => {
-          let data = snapshot.val();
-          let keys = Object.keys( data );
+    // query
+    //   .once('value', snapshot => {
+    //       let data = snapshot.val();
+    //       let keys = Object.keys( data );
           
-          if ( keys.length < this.data['numberOfPosts'] + 1 ) {
-            newData = data;
-            this.pagination_last_page = true;
+    //       if ( keys.length < options['numberOfPosts'] + 1 ) {
+    //         newData = data;
+    //         this.pagination_last_page = true;
             
-          }
-          else {
-            this.pagination_key = Object.keys( data ).shift();
-            newData = _.omit( data, this.pagination_key );
-          }
-          this.success( newData, success, complete );
-        }, error => this.failure( error, failure, complete ));
+    //       }
+    //       else {
+    //         this.pagination_key = Object.keys( data ).shift();
+    //         newData = _.omit( data, this.pagination_key );
+    //       }
+    //       this.success( newData, success, complete );
+    //     }, error => this.failure( error, failure, complete ));
   }
 
 
@@ -160,9 +163,10 @@ export class Base {
      *      - instead of passing 'null' with success,
      *      - failure callback will be called.
      */
-    get(key, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
-        // console.log("base::get() key: ", key);
-        this.getRef( key ).once( 'value', snapshot => {
+    get(key: string, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
+        console.log("base::get() key: ", key);
+        let ref = this.ref( key );
+        ref.once( 'value', snapshot => {
             if ( snapshot.exists() ) {
                 // console.log("base::get() snapshot : ", snapshot.val() );
                 let val = snapshot.val();

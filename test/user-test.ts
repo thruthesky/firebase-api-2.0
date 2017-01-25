@@ -77,15 +77,16 @@ export class UserTest {
      */
     createUser( id, success ) {
         console.log("Going to create user : " + id);
-        this.user.data('key', id)
-            .data('id', id )
-            .data('mobile', '0912372178462')
-            .data('birthdate' , '09-1-16')
-            .data('gender' , 'M') 
-            .data('email', id + '@gmail.com')
-            .data('password', TEST_PASSWORD )
-            .data('name', id + '-name')
-            .create(
+
+        let data = {};
+        data['id'] = id;
+        data['mobile'] = '09123456789';
+        data['birthday'] = '02-02-2003';
+        data['gender'] = 'M';
+        data['email'] = id +'@gmail.com';
+        data['password'] = TEST_PASSWORD;
+        data['name'] = id + ' name';
+        this.user.create( id, data,
                 ( uid ) => { 
                     console.log(`create ${id} : success ${uid}`); 
                     success( uid ); 
@@ -105,13 +106,13 @@ export class UserTest {
         () => console.log("get user-abc: complete") );
     }
     updateUser( uid, success ) {
-    this.user.clear()
-        .data( 'key', uid )
-        .data( 'name', TEST_NEW_NAME )
-        .data( 'mobile' , '1234123861926' )
-        .data( 'gender' , 'F' )
-        .data( 'birthdate', '1-1-16' )
-        .update(
+        let data = {
+            name: TEST_NEW_NAME,
+            mobile: '09777777777',
+            gender: 'F',
+            birthday: '11-23-1999'
+        };
+        this.user.update( uid, data,
             () => {
                 console.log(`user update: ${uid} : success.`);
                 success();
