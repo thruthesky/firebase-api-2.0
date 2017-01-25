@@ -93,7 +93,8 @@ export class User extends Base {
         this.loginUser = data;
 
         // 2. get user name from firebase database over network.
-        this.get( uid, user => {
+        this.data('child', 'meta/')
+        .get( uid, user => {
             if ( user ) {
                 // console.log("user: ", user);
                 data = {
@@ -248,7 +249,7 @@ export class User extends Base {
      */
     update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
         let data = this.getData();
-        data['key'] = 'meta/' + data['key'];
+        // data['key'] = 'meta/' + data['key'];
         this.loginUser.name = data['name'];
         localStorage.setItem( KEY_LOGIN_USER , JSON.stringify( this.loginUser ) )
         super.update( success, failure, complete );

@@ -110,7 +110,7 @@ export class UserTest {
         .data( 'name', TEST_NEW_NAME )
         .data( 'mobile' , '1234123861926' )
         .data( 'gender' , 'F' )
-        .data( 'birthdate', '1-1-16' )
+        .data( 'birthdate', '01-01-16' )
         .update(
             () => {
                 console.log(`user update: ${uid} : success.`);
