@@ -301,9 +301,9 @@ export class User extends Base {
             this.deleteuser( res =>{
                 this.success( res , success );
             }, err => this.failure( err, failure ) )
-            this.success( res );
+            this.success( res, success, complete );
 
-        }, err =>{})
+        }, err => this.failure( err, failure, complete ) )
     }
 
 
@@ -325,8 +325,6 @@ export class User extends Base {
                 this.failure( errorCode + ' : ' + errorMessage, failure, complete );
             });
     }
-
-
     /**
      *
      *
@@ -340,20 +338,27 @@ export class User extends Base {
         let data;
         this.get( 'meta/'+this.loginUser.uid , res =>{
                 data = res;
+
                 this.deleteMeta( res =>{
                     console.info(' deleted ::: meta::: ' + res );
+                    this.success( res, success, complete);
+
                     this.deleteID( data, res =>{
                         console.info(' deleted ::: id ::: ' + res );
+                        this.success( res, success, complete );
+
                         this.deleteEmail( data, res =>{
                             console.info( ' deleted ::: email ::: ' + res );
-                        })
+                            this.success( res, success, complete );
+
+                        }, err =>this.failure( err, failure, complete ) )
                     })
-                    this.success( res, success );
-                }, err => console.error('error ' + err ) )
-            }, err=> console.error( 'error :: ' + err ),
-            ()=>{
-                console.info( 'finished' )
-            })
+
+                    this.success( res, success, complete );
+
+                }, err => this.failure( err, failure, complete ) )
+
+            }, err=> this.failure( err, failure, complete ));
     }
 
     deleteID( data, success?, failure? ){
@@ -363,10 +368,10 @@ export class User extends Base {
             .delete( res =>{
                 console.info('deleted :: id ::' + res)
                 this.success( res, success );
-            }, err =>{})
+            }, err =>{ this.failure( err, failure )})
     }
 
-    deleteMeta( success, failure?, complete?){
+    deleteMeta( success, failure? ){
         super.data('node', 'user')
             .data('child', 'meta' )
             .data('key', this.loginUser.uid )
@@ -385,6 +390,7 @@ export class User extends Base {
             .delete( res =>{
                 console.info( 'delete ::: email :: ' + res );
                 this.success( res, success );
-            }, err => this.failure ( err, failure ))
+            }, err => this.failure ( err, failure ),
+                () =>  complete )
     }
 }
