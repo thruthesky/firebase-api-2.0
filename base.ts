@@ -69,7 +69,7 @@ export class Base {
         //let data = this.getData();
         //console.log("base::create() : ", JSON.stringify( data ));
         //let key = data['key'];
-        if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
+        // if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
         let ref;
         if ( key === void 0 ) {
             // this.failure( 'no key', failure, complete );

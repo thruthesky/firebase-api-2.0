@@ -2,7 +2,9 @@ import { NgModule } from '@angular/core';
 import { User } from './user';
 import { TestAll } from './test/test-all';
 import { UserTest } from './test/user-test';
+import { BaseTest } from './test/base-test';
 import { Forum } from '../firebase-api-2.0/forum';
+import { Base } from './base';
 import * as firebase from 'firebase';
 
 
@@ -24,6 +26,6 @@ firebase.initializeApp( firebase_config );
 @NgModule({
   declarations : [],
   imports: [],
-  providers : [ User, UserTest, TestAll, Forum ]
+  providers : [ User, UserTest, TestAll, Forum, BaseTest, Base ]
 })
 export class FirebaseApiModule {}

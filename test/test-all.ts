@@ -13,7 +13,7 @@ export class TestAll {
     run() {
  
         this.baseTest.run();
-        this.userTest.run();
+        // this.userTest.run();
 
         
     }
