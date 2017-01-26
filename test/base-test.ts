@@ -9,89 +9,98 @@ export class BaseTest {
     }
 
     run() {
+        let data =  ( new Date ).getMinutes() + ( new Date ).getSeconds();
+        this.BaseTest( data );
+    }
+
+
+    BaseTest( data ) {
         // node test 
-        this.nodeTest( res =>{
-            console.info(' node test success 1');
+        this.nodeTest( data, res =>{
+            console.info(' node test success 1' );
             // push test
-            this.createPushTest( rpushRes =>{
-                console.info( ' create push test success 2' + rpushRes );
+            this.createPushTest( data, pushRes =>{
+                console.info( ' create push test success 2' + pushRes);
+                // update push test
+                this.updateTest( data, pushRes, s =>{
+                    console.info( ' update push post test success 3')
+                    // delete push test
+                    this.deteletTest( this.base.ref( this.base.getNode() ).key + '/' + pushRes , s=>{
+                        console.info( ' delete push post test success 4')
+                    }, error => console.error( ' FAILED deleting push post ' ) )
+                }, error => console.error( 'FAILED updating pushed data ' ) )
             }, err => console.error( ' error on create push test ' + err ) );
             // ref test
-            this.createRefTest( refRes =>{
-                console.info( ' create ref test success 3' + refRes );
-                this.updateTest( 'refTest', updateRes =>{
-                    console.info(' update test success 3' + updateRes );
+            this.createRefTest( data, refRes =>{
+                console.info( ' create ref test success 5' );
+                // update ref post test
+                this.updateTest( data, 'refTest', updateRes =>{
+                    console.info(' update ref post test success 6' );
+                    //delete ref post test
+                    this.deteletTest( this.base.ref( this.base.getNode() ).key + '/'+'/refTest', s =>{
+                        console.info( 'delete ref post Test success 7' );
+                    }, error => console.error( ' delete failed ' ) )
                 }, error => console.error( 'error on updating ' ) )
             }, error => console.error( ' error on create ref test ' +  error) );
-        })
-        
-
-        
-        
-        
-        // test on success callback.
-        // test on failure callback
-        // test on complete callback
-        // create test
-        // update test
-        // delete test
-        // get test
-        
-        
+        }, error => console.error( ' fail on Node Test ' ) )
     }
 
 
 
 
-    nodeTest( success ) {
-        this.base.node( 'testNode' );
+    nodeTest( data, success, failure, complete? ) {
+        this.base.node( 'testNode' +  data );
 
-        if ( this.base.ref( this.base.getNode() ).key == 'testNode' ) console.info("OK: setting testNode");
-        else console.error("FAIL: setting testNode");
+        if ( this.base.ref( this.base.getNode() ).key == 'testNode' + data ) this.base.success("OK: setting testNode", success, complete );
+        else this.base.failure( "FAIL: setting testNode", failure, complete );
 
-        success();
+        
     }
 
-    refTest( success ) {
-        this.base.ref( 'testkey' )
-        success();
+
+    deteletTest( node, success, failure, complete? ) {
+        this.base.delete( node, res =>{
+            this.base.success( res, success, complete );
+        } , error => this.base.failure( error, failure, complete ), 
+        () =>{} )
     }
 
-    pushTest( success ) {
-        this.base.push();
-        this.base.success( null, success );
-    }
-    createPushTest( success, failure, complete? ) {
+    createPushTest( content, success, failure, complete? ) {
         let data ={
-            content: 'push test'
+            content: 'push test : ' + content
         }
          
         this.base.create( null, data,  res =>{
             console.log('push test res ' + res );
             this.base.success( res, success, complete );
         }, err => this.base.failure( err, failure , complete ), 
-        () => console.info('create post push test complete') )
+        () => {} )
     }
 
 
-    createRefTest( success, failure, complete? ) {
+    createRefTest( _data, success, failure, complete? ) {
         let data ={
-            content : 'ref test'
+            content : 'ref test ' + _data
         }
 
         this.base.create( 'refTest', data, res =>{
-            console.info('checking ref res ' +  res);
-            this.base.success( res, success, complete );
+            this.base.get( 'refTest' , test =>{
+                if( test ) this.base.success( test, success, complete );
+                else this.base.failure( 'error on test ', failure, complete );
+            }, error => this.base.failure( error, failure, complete ) )
+            
         }, error => this.base.failure( error, failure, complete ),
-        () => console.info( ' create post ref test complete ') )
+        () => {} )
     }
 
-    updateTest( key, success, failure, complete? ) {
+    updateTest( _data, key, success, failure, complete? ) {
         let data = {
-            content: 'new updated data'
+            content: 'new updated data ' + _data
         }
         this.base.update( key, data, res =>{
-
+            this.base.get( 'refTest' , res=>{
+                this.base.success( res, success, complete );
+            }, error => this.base.failure( error, failure, complete ) )
         } )
     }
 

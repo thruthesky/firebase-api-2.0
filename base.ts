@@ -84,7 +84,7 @@ export class Base {
         .set( data )
             .then( ( re ) => {
                 //console.log("base::create() success");
-                this.success( re, success, complete );
+                this.success( ref.key, success, complete );
             })
             .catch( e => this.failure( e, failure, complete ));
     }
@@ -103,7 +103,7 @@ export class Base {
     update( key: string, data: any, success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
 
         //let data = this.getData();
-        console.log("base::update() : data : ", JSON.stringify(data));
+        // console.log("base::update() : data : ", JSON.stringify(data));
         //let key = data['key'];
         if ( key === void 0 ) return this.failure('key is empty.', failure, complete );
         if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
@@ -167,7 +167,7 @@ export class Base {
      *      - failure callback will be called.
      */
     get(key: string, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
-        console.log("base::get() key: ", key);
+        // console.log("base::get() key: ", key);
         let ref = this.ref( key );
         ref.once( 'value', snapshot => {
             if ( snapshot.exists() ) {
@@ -190,6 +190,16 @@ export class Base {
         var invalidKeys = { '': '', '$': '$', '.': '.', '#': '#', '[': '[', ']': ']' };
         return invalidKeys[key] === undefined;
     }
+
+
+
+  delete( node,  success : ( success: string ) => void, failure: ( error:string ) => void, complete?){
+    let ref = firebase.database().ref();
+    ref.child( node )
+      .remove().then( res =>{
+      this.success( res, success, complete );
+    }, error => this.failure( error, failure, complete))
+  }
 
     
 
