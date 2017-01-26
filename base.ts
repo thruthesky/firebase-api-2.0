@@ -34,11 +34,14 @@ export class Base {
         this.__node = node;
         return this;
     }
+    getNode() : string {
+        return this.__node;
+    }
     ref( key ) : firebase.database.Reference {
-        return this.db.ref( '/' + this.__node + '/' + key );
+        return this.db.ref( '/' + this.getNode() + '/' + key );
     }
     push() : firebase.database.Reference {
-        return this.db.ref( '/' + this.__node ).push();
+        return this.db.ref( '/' + this.getNode() ).push();
     }
     success( re?: any, success?: (re?: any) => void, complete?: () => void ) {
         if ( success ) success( re );
@@ -60,8 +63,8 @@ export class Base {
      * @code
      * 
      * 
-     * post.create( () => console.log('ok'), e => console.error('error:' + e ));
      * 
+     * this.base.create( null, data,  s => { }, e => { }, () => { } ); // create a random key.
      * 
      * @endcode
      */
@@ -71,7 +74,7 @@ export class Base {
         //let key = data['key'];
         // if ( ! this.isValidKey( key ) ) return this.failure('invalid key', failure, complete );
         let ref;
-        if ( key === void 0 ) {
+        if ( key === void 0 || key === null ) {
             // this.failure( 'no key', failure, complete );
             ref = this.push();
         }

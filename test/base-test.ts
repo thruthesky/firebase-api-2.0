@@ -15,14 +15,14 @@ export class BaseTest {
             // push test
             this.createPushTest( rpushRes =>{
                 console.info( ' create push test success 2' + rpushRes );
-            }, err => console.error( ' error on create push test ' + err ) )
+            }, err => console.error( ' error on create push test ' + err ) );
             // ref test
             this.createRefTest( refRes =>{
                 console.info( ' create ref test success 3' + refRes );
                 this.updateTest( 'refTest', updateRes =>{
                     console.info(' update test success 3' + updateRes );
                 }, error => console.error( 'error on updating ' ) )
-            }, error => console.error( ' error on create ref test ' +  error) )
+            }, error => console.error( ' error on create ref test ' +  error) );
         })
         
 
@@ -45,6 +45,10 @@ export class BaseTest {
 
     nodeTest( success ) {
         this.base.node( 'testNode' );
+
+        if ( this.base.ref( this.base.getNode() ).key == 'testNode' ) console.info("OK: setting testNode");
+        else console.error("FAIL: setting testNode");
+
         success();
     }
 
@@ -62,7 +66,7 @@ export class BaseTest {
             content: 'push test'
         }
          
-        this.base.create( undefined, data,  res =>{
+        this.base.create( null, data,  res =>{
             console.log('push test res ' + res );
             this.base.success( res, success, complete );
         }, err => this.base.failure( err, failure , complete ), 
