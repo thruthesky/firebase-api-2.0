@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
+import { Base } from './base';
 import { User } from './user';
 import { TestAll } from './test/test-all';
 import { UserTest } from './test/user-test';
+import { BaseTest } from './test/base-test';
 import { Forum } from '../firebase-api-2.0/forum';
 import * as firebase from 'firebase';
 
@@ -17,13 +19,13 @@ const firebase_config = {
     storageBucket: "english-588f2.appspot.com",
     messagingSenderId: "663067398311"
 };
-  
+
 firebase.initializeApp( firebase_config );
 
 
 @NgModule({
   declarations : [],
   imports: [],
-  providers : [ User, UserTest, TestAll, Forum ]
+  providers : [ Base, User, UserTest, TestAll, BaseTest, Forum ]
 })
 export class FirebaseApiModule {}
