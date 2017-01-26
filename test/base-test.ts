@@ -62,7 +62,8 @@ export class BaseTest {
     nodeTest() {
         let key = this.getRandomString();
         this.base.node( 'testNode' +  key );
-        if ( this.base.ref( this.base.getNode() ).key != 'testNode' + key ) console.error("FAIL: ... ");
+        if ( this.base.ref( this.base.getNode() ).key != 'testNode' + key ) console.error("FAIL: testnode ");
+        else console.info('PASSED: testnode ');
     }
 
 
@@ -92,8 +93,9 @@ export class BaseTest {
         };
         this.base.create( key, data, success => {
             this.base.get( key, success => {
-                if ( data == success ) {
-
+                console.log('success ' + JSON.stringify(data))
+                if ( JSON.stringify(success) == JSON.stringify(data) ) {
+                    console.log('success create')
                 }
                 else {
                     console.log("ERROR: ...");
@@ -105,18 +107,19 @@ export class BaseTest {
 
         })
     }
+    
 
-    // createPushTest( content, success, failure, complete? ) {
-    //     let data ={
-    //         content: 'push test : ' + content
-    //     };
+    createPushTest( content, success, failure, complete? ) {
+        let data ={
+            content: 'push test : ' + content
+        };
          
-    //     this.base.create( null, data,  res =>{
-    //         console.log('push test res ' + res );
-    //         this.base.success( res, success, complete );
-    //     }, err => this.base.failure( err, failure , complete ), 
-    //     () => {} );
-    // }
+        this.base.create( null, data,  res =>{
+            console.log('push test res ' + res );
+            this.base.success( res, success, complete );
+        }, err => this.base.failure( err, failure , complete ), 
+        () => {} );
+    }
 
 
     createRefTest( _data, success, failure, complete? ) {
