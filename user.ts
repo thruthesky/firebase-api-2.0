@@ -274,12 +274,14 @@ export class User extends Base {
 
 
     deketeuser(uid){
+        /*
         admin.auth().deleteUser(uid)
             .then( () =>{
                 console.log('successfully deleted');
             }).catch( error =>{
                 console.log('error ' + error);
             })
+            */
     }
 
     /**
