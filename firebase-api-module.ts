@@ -1,22 +1,31 @@
 import { NgModule } from '@angular/core';
+import { Base } from './base';
 import { User } from './user';
+import { TestAll } from './test/test-all';
 import { UserTest } from './test/user-test';
+import { BaseTest } from './test/base-test';
+import { Forum } from '../firebase-api-2.0/forum';
 import * as firebase from 'firebase';
 
 
-var config = {
-  apiKey: "AIzaSyCKGAejpeOxxSHELi_Xbo2UdRa8xQPmipU",
-  authDomain: "test-ec3e3.firebaseapp.com",
-  databaseURL: "https://test-ec3e3.firebaseio.com",
-  storageBucket: "test-ec3e3.appspot.com",
-  messagingSenderId: "55749236444"
+
+
+
+// Initialize Firebase
+const firebase_config = {
+    apiKey: "AIzaSyBnvok5OR77tFUl1yk0-ZeyeVkYgMWGrcE",
+    authDomain: "english-588f2.firebaseapp.com",
+    databaseURL: "https://english-588f2.firebaseio.com",
+    storageBucket: "english-588f2.appspot.com",
+    messagingSenderId: "663067398311"
 };
-firebase.initializeApp(config);
+
+firebase.initializeApp( firebase_config );
 
 
 @NgModule({
   declarations : [],
   imports: [],
-  providers : [ User, UserTest ]
+  providers : [ Base, User, UserTest, TestAll, BaseTest, Forum ]
 })
 export class FirebaseApiModule {}

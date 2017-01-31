@@ -10,9 +10,10 @@
  */
 import { Injectable } from '@angular/core';
 import { Base } from './base';
-import { USER_LOGIN_DATA } from './interfaces';
+import { USER_LOGIN_DATA, USER_DATA } from './interfaces';
 import * as firebase from 'firebase';
 const KEY_LOGIN_USER = 'loginUser';
+declare function require(name:string);
 @Injectable()
 export class User extends Base {
     auth: firebase.auth.Auth;
@@ -43,12 +44,36 @@ export class User extends Base {
         this.auth = firebase.auth();
         this.loginUser = this.getLoginUserData();
         this.auth.onAuthStateChanged( ( user ) => this.onAuthStateChanged( user ) );
+
     }
+
 
 
     get loggedIn() : boolean {
         return !! ( this.loginUser && this.loginUser.uid );
     }
+
+
+
+
+    /**
+     * @attention since, parent has 'get()' also, and it shouldn't change the way how parent's get() do,
+     *  we have a private get() here.
+     * This is only for getting user's meta data.
+     */
+    private_get(key: string, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
+        key = 'meta/' + key;
+        super.get( key, success, failure, complete );
+    }
+
+    // getRef( key ) : firebase.database.Reference {
+    //     key = '/' + this.__node + '/meta/' + key;
+    //     console.log('ref key: ', key);
+    //     return this.db.ref( key );
+    // }
+
+
+
 
     private getLoginUserData() : USER_LOGIN_DATA {
         let data = localStorage.getItem( KEY_LOGIN_USER );
@@ -89,7 +114,7 @@ export class User extends Base {
         this.loginUser = data;
 
         // 2. get user name from firebase database over network.
-        this.get( uid, user => {
+        this.private_get( uid, user => {
             if ( user ) {
                 // console.log("user: ", user);
                 data = {
@@ -101,7 +126,7 @@ export class User extends Base {
                 this.loginUser = data;
             }
         }, e => {
-            return alert("CRITICAL ERROR: failed to get user data");
+            return alert("CRITICAL ERROR: failed to get user data in user::setLoginUserData()");
         });
     }
 
@@ -150,19 +175,18 @@ export class User extends Base {
      * @attention once user account has created, the user has logged in automatically.
      * @see UserTest::create_login_test()
      */
-    create( success?: ( uid: string ) => void, failure?: (error?: any) => void, complete?: () => void ) {
+    create( id, data, success?: ( uid: string ) => void, failure?: (error?: any) => void, complete?: () => void ) {
         //console.log("user::create()");
-        let data = this.getData();
+        // let data = this.getData();
+        
         this.register( data['email'], data['password'], user => { // user register into firebase authentication.
-            //console.log('user::register() : ', user);
+            // console.log('user::register() : ', user);
             let uid = user.uid;
             let id = data['id'];
-            let email = data['email'];
-            data['key'] = uid;
             data['uid'] = uid;
             delete data['password'];
             //console.log('data:', data);
-            super.create( () => { // user create success. user has logged in now.
+            super.create( 'meta/' + uid, data, () => { // user create success. user has logged in now.
                 //console.log("user::create() success. uid: ", uid);
 
 
@@ -170,24 +194,33 @@ export class User extends Base {
                  * It creates 'User ID => UID' index for access uid by user id.
                  * @see README.md
                  */
-                super.clear();
-                let data = this.getData();
-                data['key'] = id;
-                data['uid'] = uid;
+                //super.clear();
+                //let data = this.getData();
+                //data['email'] = email;
+                //data['key'] = 'id/'+id;
+                //data['uid'] = uid;
                 //console.log("data: ", data);
-                super.create( (x) => {
+                let id_data = {
+                    uid: uid,
+                    email: data['email']
+                };
+                super.create( 'id/' + id, id_data, (x) => {
+                    
                     //console.info('user id index success');
 
                     /**
                      * 'email => uid'
                      */
-                    super.clear();
-                    let data = this.getData();
-                    data['key'] = email.replace('@', '+');
-                    data['key'] = data['key'].replace('.', '-');
-                    data['id'] = id;
-                    data['uid'] = uid;
-                    super.create( x => {
+                    //super.clear();
+                    // let data = this.getData();
+                    let email = data['email'].replace('@', '+');
+                    let key = 'email/' + email.replace('.', '-');
+                    let email_data = {
+                        id: id,
+                        uid: uid
+                    };
+                    
+                    super.create( key, email_data, x => {
                         this.setLoginUserData( uid );
                         success( uid );
                     }, failure, complete );
@@ -233,10 +266,19 @@ export class User extends Base {
 
 
     /**
+     * 
      * @todo update user passwd on firebase.auth
+     * @description updates the KEY_LOGIN_USER in localStorage so that if ever the user updates his/her data loginUser.name will also be updated.
+     * 
      */
-    update( success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
-        super.update( success, failure, complete );
+    update( uid: string, data: USER_DATA, success?: ( data: any) => void, failure?: (error?: any) => void, complete?: () => void ) {
+        //let data = this.getData();
+        //data['key'] = 'meta/' + data['key'];
+        if ( data.name !== void 0 ) this.loginUser.name = data['name'];
+        localStorage.setItem( KEY_LOGIN_USER , JSON.stringify( this.loginUser ) );
+
+        // @important since user.get() points out at 'meta/' + uid, no need to change uid node path here.
+        super.update( 'meta/' + uid, data, success, failure, complete );
     }
 
 
@@ -273,6 +315,7 @@ export class User extends Base {
     }
 
 
+<<<<<<< HEAD
     deketeuser(uid){
         /*
         admin.auth().deleteUser(uid)
@@ -283,20 +326,22 @@ export class User extends Base {
             })
             */
     }
+=======
+>>>>>>> 1290c8e8dba1a62558628ed2311dde85b41110f8
 
     /**
      * @todo it needs to delete data on firebase database.
      */
     delete( success, failure?: ( error: string ) => void, complete? ) {
-        let user = this.auth.currentUser;
-        user.delete().then( () => {
-                this.deleteLoginUserData();
-                this.success( null, success, complete);
-            },
-            error => {
-                var errorCode = error['code'];
-                var errorMessage = error.message;
+         let user = this.auth.currentUser;
+         user.delete().then( () => {
+                 this.deleteLoginUserData();
+                 this.success( null, success, complete);
+             },
+             error => {
+                 var errorCode = error['code'];
+                 var errorMessage = error.message;
                 this.failure( errorCode + ' : ' + errorMessage, failure, complete );
-            });
+    });
     }
 }
