@@ -4,22 +4,22 @@ import { Base } from '../base';
 
 @Injectable()
 export class BaseTest {
-
     constructor( private base: Base ) {
     }
 
     run() {
-        let data =  ( new Date ).getMinutes() + ( new Date ).getSeconds();
-        this.BaseTest( data );
+        this.BaseTest( );
     }
 
 
-    BaseTest( data ) {
+    BaseTest( ) {
 
 
         this.nodeTest();
         this.createTest();
-        // this.createPushTest();
+        this.createPush();
+        
+        
 
 
         // // node test 
@@ -68,37 +68,29 @@ export class BaseTest {
 
 
 
-    // nodeTest( data, success, failure, complete? ) {
-    //     this.base.node( 'testNode' +  data );
-
-    //     if ( this.base.ref( this.base.getNode() ).key == 'testNode' + data ) this.base.success("OK: setting testNode", success, complete );
-    //     else this.base.failure( "FAIL: setting testNode", failure, complete );
-
-        
-    // }
 
 
-    deteletTest( node, success, failure, complete? ) {
+
+    deteletTest( node, string? ) {
         this.base.delete( node, res =>{
-            this.base.success( res, success, complete );
-        } , error => this.base.failure( error, failure, complete ), 
+            console.log( 'delete success :: ' + string );
+        } , error => console.error( 'failed to delete ' +  string ), 
         () =>{} );
     }
 
     createTest() {
         let key = this.getRandomString();
         let data = {
-            a: 'b',
-            c: 'd'
+            content: 'ref content'
         };
-        this.base.create( key, data, success => {
+        this.base.create( key, data, s => {       
             this.base.get( key, success => {
-                console.log('success ' + JSON.stringify(data))
                 if ( JSON.stringify(success) == JSON.stringify(data) ) {
-                    console.log('success create')
+                    console.log('success create with ref');
+                    this.updateTest( s );
                 }
                 else {
-                    console.log("ERROR: ...");
+                    console.log("ERROR: create with ref");
                 }
             }, error => console.log("ERROR: BaseTest::createTest() => get() ", error), () => {} );
         }, error => {
@@ -107,45 +99,40 @@ export class BaseTest {
 
         })
     }
-    
 
-    createPushTest( content, success, failure, complete? ) {
+    createPush(){
         let data ={
-            content: 'push test : ' + content
+            content: 'push test : '
         };
-         
         this.base.create( null, data,  res =>{
-            console.log('push test res ' + res );
-            this.base.success( res, success, complete );
-        }, err => this.base.failure( err, failure , complete ), 
+      
+            this.base.get( res, success =>{
+                if ( JSON.stringify( data ) == JSON.stringify( success ) ) {
+                    console.log('success  create with push');
+                    this.updateTest( res );
+                }
+                else {
+                    console.log("ERROR: create with push");
+                }
+            }, error =>{})
+        }, err => console.error( ' error on push test ' ), 
         () => {} );
     }
-
-
-    createRefTest( _data, success, failure, complete? ) {
-        let data ={
-            content : 'ref test ' + _data
-        }
-
-        this.base.create( 'refTest', data, res =>{
-            this.base.get( 'refTest' , test =>{
-                if( test ) this.base.success( test, success, complete );
-                else this.base.failure( 'error on test ', failure, complete );
-            }, error => this.base.failure( error, failure, complete ) )
-            
-        }, error => this.base.failure( error, failure, complete ),
-        () => {} )
-    }
-
-    updateTest( _data, key, success, failure, complete? ) {
+    
+    updateTest( key ) {
+        console.log( 'update ' + key );
         let data = {
-            content: 'new updated data ' + _data
+            content: 'new updated data '
         }
         this.base.update( key, data, res =>{
-            this.base.get( 'refTest' , res=>{
-                this.base.success( res, success, complete );
-            }, error => this.base.failure( error, failure, complete ) )
-        } )
+            this.base.get( this.base.ref( this.base.getNode() ).key+'/'+ key, s =>{
+                if( JSON.stringify( data ) == JSON.stringify( s ) ){
+                    console.log( ' success: update ' );
+                }
+                else console.error( ' error: update ' );
+            })
+        }, error =>console.error( 'error : update : ' + error), 
+        () => this.deteletTest( this.base.ref( this.base.getNode() ).key + '/' + key, key ) )
     }
 
 
