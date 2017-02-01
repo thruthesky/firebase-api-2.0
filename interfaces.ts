@@ -13,7 +13,7 @@ export interface USER_DATA {
     name?        : string;
     mobile?      : string;
     gender?      : string;
-    birthday?    : string;
+    birthdate?    : string;
 }
 
 export interface USER_REGISTRATION_FORM extends USER_DATA {
