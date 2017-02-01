@@ -5,8 +5,8 @@ import * as _ from 'lodash';
 
 
 export class Base {
-    private pagination_key: string = '';
-    private pagination_last_page: boolean = false;
+    // private pagination_key: string = '';
+    // private pagination_last_page: boolean = false;
     db: firebase.database.Database;
     storage: firebase.storage.Storage;
     __node: string = null;
