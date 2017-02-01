@@ -13,14 +13,9 @@ export class BaseTest {
 
 
     BaseTest( ) {
-
-
         this.nodeTest();
-        this.createTest();
-        this.createPush();
-        
-        
-
+        this.createRefTest();
+        this.createPushTest();
 
         // // node test 
         // this.nodeTest( data, res =>{
@@ -78,7 +73,7 @@ export class BaseTest {
         () =>{} );
     }
 
-    createTest() {
+    createRefTest() {
         let key = this.getRandomString();
         let data = {
             content: 'ref content'
@@ -100,7 +95,7 @@ export class BaseTest {
         })
     }
 
-    createPush(){
+    createPushTest(){
         let data ={
             content: 'push test : '
         };
@@ -134,11 +129,6 @@ export class BaseTest {
         }, error =>console.error( 'error : update : ' + error), 
         () => this.deteletTest( this.base.ref( this.base.getNode() ).key + '/' + key, key ) )
     }
-
-
-    
-
-
 
 
 }
