@@ -8,6 +8,7 @@ export interface USER_DATA {
     classid?     : string;
     id?          : string;
     email?       : string;
+    nickname?    : string;
     password?    : string;
     name?        : string;
     mobile?      : string;
