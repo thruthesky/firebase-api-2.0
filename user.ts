@@ -97,9 +97,13 @@ export class User extends Base {
         if ( ! uid ) return alert("CRITICAL ERROR: uid cannot be null on setLoginUserData()");
         
         // 1. save uid only. since you cannot get user name yet.
-        let data: USER_LOGIN_DATA = {
+        let data = {
             uid: uid,
-            name: ''
+            id: '',
+            name: '',
+            email:'',
+            classid:'',
+            domain:''
         };
 
         let loginUser;
@@ -116,10 +120,14 @@ export class User extends Base {
         // 2. get user name from firebase database over network.
         this.private_get( uid, user => {
             if ( user ) {
-                // console.log("user: ", user);
+                console.log("user: user.ts ", user);
                 data = {
                     uid: uid,
-                    name: user['name']
+                    id: user['id'],
+                    name: user['name'],
+                    email: user['email'],
+                    classid: user['classid'],
+                    domain: user['domain']
                 };
                 loginUser = JSON.stringify( data );
                 localStorage.setItem( KEY_LOGIN_USER, loginUser);
