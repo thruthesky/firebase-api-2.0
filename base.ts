@@ -5,12 +5,12 @@ import * as _ from 'lodash';
 
 
 export class Base {
-    // private pagination_key: string = '';
-    // private pagination_last_page: boolean = false;
+    private pagination_key: string = '';
+    private pagination_last_page: boolean = false;
     db: firebase.database.Database;
     storage: firebase.storage.Storage;
     __node: string = null;
-    //__data: any = {};
+    // __data: any = {};
     constructor() {
         this.db = firebase.database();
         this.storage = firebase.storage();
@@ -127,35 +127,37 @@ export class Base {
     /**
      * @description: page method is for getting list with pagination.
      */
-  page( node: string, options: any, success, failure, complete? ) {
-    // let num = ( options['numberOfPosts'] ? options['numberOfPosts'] : 8 ) + 1;
-    // let ref = firebase.database().ref( node )
-    // let order = ref.orderByKey();
-    // let query;
-    // let newData;
-    // if ( this.pagination_key ) {
-    //   query = order.endAt( this.pagination_key ).limitToLast( num );
-    // }
-    // else {
-    //   query = order.limitToLast(num);
-    // }
+  page( node: string, success, failure, complete? ) {
+    let options: any = {};
+    let num = ( options['numberOfPosts'] ? options['numberOfPosts'] : 5 ) + 1;
+    let ref = firebase.database().ref( node )
+    let order = ref.orderByKey();
+    let query;
 
-    // query
-    //   .once('value', snapshot => {
-    //       let data = snapshot.val();
-    //       let keys = Object.keys( data );
+    if ( this.pagination_key ) {
+      query = order.endAt( this.pagination_key ).limitToLast( num );
+    }
+    else {
+      query = order.limitToLast(num);
+    }
+
+    query
+      .once('value', snapshot => {
+          let newData;
+          let data = snapshot.val();
+          let keys = Object.keys( data );
           
-    //       if ( keys.length < options['numberOfPosts'] + 1 ) {
-    //         newData = data;
-    //         this.pagination_last_page = true;
+          if ( keys.length < options['numberOfPosts'] + 1 ) {
+            newData = data;
+            this.pagination_last_page = true;
             
-    //       }
-    //       else {
-    //         this.pagination_key = Object.keys( data ).shift();
-    //         newData = _.omit( data, this.pagination_key );
-    //       }
-    //       this.success( newData, success, complete );
-    //     }, error => this.failure( error, failure, complete ));
+          }
+          else {
+            this.pagination_key = Object.keys( data ).shift();
+            newData = _.omit( data, this.pagination_key );
+          }
+          this.success( newData, success, complete );
+        }, error => this.failure( error, failure, complete ));
   }
 
 
