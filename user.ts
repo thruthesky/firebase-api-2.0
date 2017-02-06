@@ -13,6 +13,7 @@ import { Base } from './base';
 import { USER_LOGIN_DATA, USER_DATA } from './interfaces';
 import * as firebase from 'firebase';
 const KEY_LOGIN_USER = 'loginUser';
+export const KEY_LOGIN_USER_DATA = 'loginUserData';
 declare function require(name:string);
 @Injectable()
 export class User extends Base {
@@ -42,7 +43,7 @@ export class User extends Base {
         super();
         this.node( 'user' );
         this.auth = firebase.auth();
-        this.loginUser = this.getLoginUserData();
+        this.loginUser = this.getLoginUser();
         this.auth.onAuthStateChanged( ( user ) => this.onAuthStateChanged( user ) );
 
     }
@@ -61,7 +62,7 @@ export class User extends Base {
      *  we have a private get() here.
      * This is only for getting user's meta data.
      */
-    private_get(key: string, success: (data: any) => void, failure?: (error?: any) => void, complete?) {
+    private_get(key: string, success: (data: USER_DATA) => void, failure?: (error?: any) => void, complete?) {
         key = 'meta/' + key;
         super.get( key, success, failure, complete );
     }
@@ -75,7 +76,7 @@ export class User extends Base {
 
 
 
-    private getLoginUserData() : USER_LOGIN_DATA {
+    private getLoginUser() : USER_LOGIN_DATA {
         let data = localStorage.getItem( KEY_LOGIN_USER );
         if ( data ) {
             try {
@@ -83,27 +84,42 @@ export class User extends Base {
                 if ( user && user.uid ) return user;
             }
             catch ( e ) {
-                console.log("getLoginUserData() : ", e);
+                console.log("getLoginUser()) : ", e);
             }
         }
         return null;
     }
 
 
+    getLoginUserData() : USER_LOGIN_DATA {
+        let data = localStorage.getItem( KEY_LOGIN_USER_DATA );
+        if ( data ) {
+            try {
+                let user = JSON.parse( data );
+                if ( user && user.id ) return user;
+                console.log("user has no data");
+            }
+            catch ( e ) {
+                console.log("getLoginUser()) : ", e);
+            }
+        }
+        return null;
+    }
+
+
+
     /**
      * save login user data into localStorage.
+     * 
+     * @note Since when 'setLoginuserData()', it gets data from firebase, it needs to be blocked or callback.
      */
-    private setLoginUserData( uid: string ) {
+    private setLoginUserData( uid: string, success?: (data: USER_DATA) => void ) {
         if ( ! uid ) return alert("CRITICAL ERROR: uid cannot be null on setLoginUserData()");
         
         // 1. save uid only. since you cannot get user name yet.
         let data = {
             uid: uid,
-            id: '',
-            name: '',
-            email:'',
-            classid:'',
-            domain:''
+            name: ''
         };
 
         let loginUser;
@@ -118,20 +134,14 @@ export class User extends Base {
         this.loginUser = data;
 
         // 2. get user name from firebase database over network.
-        this.private_get( uid, user => {
+        this.private_get( uid, (user: USER_DATA) => {
             if ( user ) {
                 console.log("user: user.ts ", user);
-                data = {
-                    uid: uid,
-                    id: user['id'],
-                    name: user['name'],
-                    email: user['email'],
-                    classid: user['classid'],
-                    domain: user['domain']
-                };
-                loginUser = JSON.stringify( data );
-                localStorage.setItem( KEY_LOGIN_USER, loginUser);
-                this.loginUser = data;
+                localStorage.setItem( KEY_LOGIN_USER_DATA, JSON.stringify( user ));
+                if ( success ) success( user );
+            }
+            else {
+                console.log("error is not handled. if the user is empty, then what???");
             }
         }, e => {
             return alert("CRITICAL ERROR: failed to get user data in user::setLoginUserData()");
@@ -313,8 +323,10 @@ export class User extends Base {
     login( email, password, success: ( uid: string ) => void, failure: ( error: string ) => void, complete? ) {
         this.auth.signInWithEmailAndPassword(email, password)
             .then( (user: firebase.User) => {
-                this.setLoginUserData( user.uid );
-                this.success( user.uid, success, complete );
+                this.setLoginUserData( user.uid, (data: USER_DATA) => {
+                    console.info("after setLoginUserData()", data);
+                    this.success( user.uid, success, complete );
+                } );
             }, error => {
                 var errorCode = error['code'];
                 var errorMessage = error.message;

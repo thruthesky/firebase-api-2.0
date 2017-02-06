@@ -4,11 +4,9 @@ export interface USER_LOGIN_DATA {
 }
 
 export interface USER_DATA {
-    uid?         : string;
-    classid?     : string;
+    uid?         : string
     id?          : string;
     email?       : string;
-    nickname?    : string;
     password?    : string;
     name?        : string;
     mobile?      : string;

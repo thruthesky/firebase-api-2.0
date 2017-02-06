@@ -105,6 +105,9 @@ export class UserTest {
         e => console.error("get user-abc: failure: ", e ),
         () => console.log("get user-abc: complete") );
     }
+
+
+    
     updateUser( uid, success ) {
         let data = {
             name: TEST_NEW_NAME,
